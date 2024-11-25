@@ -2,7 +2,6 @@
 
 
 from TuringBotClient import TuringBotClient  # type: ignore
-import asyncio
 from typing import override
 from openai import AsyncOpenAI
 
@@ -30,15 +29,6 @@ class FourMind(TuringBotClient):
         )
 
         self.oai_client: AsyncOpenAI = oai_client
-
-    @override
-    def start(self) -> None:
-        self.__event_loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-        try:
-            self.__event_loop.run_until_complete(super().connect())
-            self.logger.info("FourMind bot started")
-        except Exception as e:
-            self.logger.exception(f"Error occurred while connecting to the TuringGame API: {e}")
 
     @override
     async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
