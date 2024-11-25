@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "fourmind"
+version = "1.0.0"
+description = "An llm-powered bot designed for the TuringGame that leverages the Four-Sides Model to achieve human-like chat behavior."
+authors = ["Severin Bergsmann <severin.bergsmann@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12.7"
+turing-bot-client = {git = "https://github.com/SCCH-Nessler/TuringBotClient.git"}
+openai = "^1.55.0"
+websockets = "^14.1"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
