@@ -1,7 +1,9 @@
 from .FourMind import FourMind
-from bot import common
+from bot import common, models, services
 
 __all__ = [
     "FourMind",
-    "common"
+    "common",
+    "models",
+    "services"
 ]
