@@ -2,7 +2,7 @@
 
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
@@ -13,12 +13,22 @@ class ChatMessage(BaseModel):
 
 class Chat(BaseModel):
     id: int
-    start_time: DateTime
-    last_message_time: DateTime
+    start_time: DateTime = Field(default_factory=DateTime.now)
+    last_message_time: DateTime = Field(default_factory=DateTime.now)
     player1: str
     player2: str
     bot: str
-    messages: List[ChatMessage]
+    language: str
+    messages: List[ChatMessage] = Field(default_factory=list)
+
+    def add_message(self, message: ChatMessage) -> None:
+        self.messages.append(message)
+
+    def get_message_timedelta(self, time: DateTime) -> TimeDelta:
+        return time - self.last_message_time
+
+    def update_last_message_time(self, time: DateTime) -> None:
+        self.last_message_time = time
 
     @property
     def humans(self):
