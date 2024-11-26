@@ -2,10 +2,11 @@
 
 
 from TuringBotClient import TuringBotClient  # type: ignore
-from typing import override
+from typing import Dict, override
 from openai import AsyncOpenAI
 
 
+from bot.models.storage import Storage
 from common import LoggerFactory
 
 
@@ -29,6 +30,10 @@ class FourMind(TuringBotClient):
         )
 
         self.oai_client: AsyncOpenAI = oai_client
+
+        self.storage: Storage = Storage()
+        self.is_message_generating: Dict[int, int] = {}
+        # indicates whether a message generation is currently running
 
     @override
     async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
