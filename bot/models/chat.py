@@ -37,3 +37,10 @@ class Chat(BaseModel):
     @property
     def duration(self):
         return DateTime.now() - self.start_time
+
+    def __str__(self) -> str:
+        return "(ID {id}, #{nr_messages}, {duration}s)".format(
+            id="..." + str(self.id)[-4:],
+            nr_messages=len(self.messages),
+            duration=self.duration.seconds
+        )
