@@ -2,18 +2,20 @@
 
 from logging import Logger
 import os
-from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from FourMind import FourMind
-from common import LoggerFactory
+
+from dotenv import load_dotenv
+is_dotenv_loaded: bool = load_dotenv()
+
+from FourMind import FourMind  # noqa E402
+from common import LoggerFactory  # noqa E402
 
 
 if __name__ == "__main__":
     logger: Logger = LoggerFactory.setup_logger(__name__)
-    logger.debug("Starting FourMind bot")
+    logger.info(f"Starting FourMind bot with log level {LoggerFactory.log_level_str}")
 
-    is_dotenv_loaded: bool = load_dotenv()
     logger.debug(f".env file loaded: {is_dotenv_loaded}")
 
     turinggame_api_key: str | None = os.getenv("TURINGGAME_API_KEY")
