@@ -6,9 +6,10 @@ This class shall be the only interface to interact with the storage of chats in 
 """
 
 from logging import Logger
-from models.chat import Chat
-from models.storage import Storage
-from common import LoggerFactory
+
+from bot.models.chat import Chat
+from bot.models.storage import Storage
+from bot.common import LoggerFactory
 
 
 class StorageHandler:

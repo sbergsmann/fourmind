@@ -3,7 +3,7 @@
 from typing import Dict,  Set
 from pydantic import Field, BaseModel
 
-from models.chat import Chat
+from bot.models.chat import Chat
 
 
 class Storage(BaseModel):

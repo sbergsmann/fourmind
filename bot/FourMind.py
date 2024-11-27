@@ -8,9 +8,10 @@ from typing import Any, Dict, override
 from openai import AsyncOpenAI
 from datetime import datetime as DateTime
 
-from services.storage import StorageHandler
-from models.chat import Chat, ChatMessage
-from common import LoggerFactory
+from bot.services.ai import MessageAnalyzer
+from bot.services.storage import StorageHandler
+from bot.models.chat import Chat, ChatMessage
+from bot.common import LoggerFactory
 
 
 class FourMind(TuringBotClient):
@@ -23,7 +24,7 @@ class FourMind(TuringBotClient):
     def __init__(
         self,
         turinggame_api_key: str,
-        oai_client: AsyncOpenAI,
+        openai_api_key: str,
         bot_name: str = BOT_NAME,
         language: str = DEFAULT_LANGUAGE,
         persist_chats: bool = False
@@ -34,9 +35,14 @@ class FourMind(TuringBotClient):
             languages=language
         )
 
-        self.oai_client: AsyncOpenAI = oai_client
+        self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
         self.persist_chats: bool = persist_chats
 
+        self.message_queue: asyncio.Queue[ChatMessage] = asyncio.Queue()
+        self.message_analyzer: MessageAnalyzer = MessageAnalyzer(
+            client=self.oai_client,
+            queue=self.message_queue
+        )
         self.storage_handler: StorageHandler = StorageHandler()
         self.is_message_generating: Dict[int, int] = {}
         # indicates whether a message generation is currently running
@@ -72,6 +78,7 @@ class FourMind(TuringBotClient):
             return None
 
         chat_message: ChatMessage = ChatMessage(
+            id=len(chat.messages),
             user=player,
             message=message,
             message_timedelta=chat.get_message_timedelta(incoming_message_start_time)
