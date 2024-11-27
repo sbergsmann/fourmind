@@ -1,10 +1,14 @@
-""""""
+"""The StorageHandler class is responsible for managing the storage of chats in the bot.
 
+It has methods to add, get, and remove chats from the storage, as well as persisting chats
+to a persistent storage.
+This class shall be the only interface to interact with the storage of chats in the bot.
+"""
 
 from logging import Logger
 from models.chat import Chat
-from common import LoggerFactory
 from models.storage import Storage
+from common import LoggerFactory
 
 
 class StorageHandler:
