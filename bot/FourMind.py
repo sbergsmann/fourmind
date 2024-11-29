@@ -8,7 +8,9 @@ from typing import Any, Dict, override
 from openai import AsyncOpenAI
 from datetime import datetime as DateTime
 
-from bot.services.ai import MessageAnalyzer
+from bot.models.storage import ChatStorage
+from bot.services.ai import QueueProcessor, ResponseGenerator
+from bot.services.ai.models import BotResponse
 from bot.services.storage import StorageHandler
 from bot.models.chat import Chat, ChatMessage
 from bot.common import LoggerFactory
@@ -38,12 +40,18 @@ class FourMind(TuringBotClient):
         self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
         self.persist_chats: bool = persist_chats
 
-        self.message_queue: asyncio.Queue[ChatMessage] = asyncio.Queue()
-        self.message_analyzer: MessageAnalyzer = MessageAnalyzer(
-            client=self.oai_client,
-            queue=self.message_queue
+        self.__storage = ChatStorage()
+        self.chats: StorageHandler = StorageHandler(
+            storage=self.__storage,
+            persist=persist_chats
         )
-        self.storage_handler: StorageHandler = StorageHandler()
+        self.queues: QueueProcessor = QueueProcessor(
+            storage=self.__storage,
+            client=self.oai_client
+        )
+        self.response_generator: ResponseGenerator = ResponseGenerator(
+            client=self.oai_client
+        )
         self.is_message_generating: Dict[int, int] = {}
         # indicates whether a message generation is currently running
 
@@ -51,7 +59,10 @@ class FourMind(TuringBotClient):
 
     @override
     async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
-        """Override method to implement game start logic"""
+        """Override method to implement game start logic.
+
+        TODO perhaps async not needed here
+        """
         # create a chat model
         chat: Chat = Chat(
             id=game_id,
@@ -60,7 +71,8 @@ class FourMind(TuringBotClient):
             bot=bot,
             language=language
         )
-        self.storage_handler.add_chat(chat)
+        self.chats.add(chat)
+        self.queues.add_queue(game_id)
         self.is_message_generating[game_id] = 0
         return True
 
@@ -72,35 +84,37 @@ class FourMind(TuringBotClient):
         - return type of overridden method was changed to str | None
         """
         incoming_message_start_time: DateTime = DateTime.now()
-        chat: Chat | None = self.storage_handler.get_chat(game_id)
-        if chat is None:
+        chat_ref: Chat | None = self.chats.get(game_id)
+        if chat_ref is None:
             self.logger.error(f"Chat with ID {self.anonymize_id(game_id)} not found in storage")
             return None
 
         chat_message: ChatMessage = ChatMessage(
-            id=len(chat.messages),
+            id=len(chat_ref.messages),
             user=player,
             message=message,
-            message_timedelta=chat.get_message_timedelta(incoming_message_start_time)
+            time=incoming_message_start_time
         )
-        chat.add_message(chat_message)
+        chat_ref.add_message(chat_message)
+        await self.queues.enqueue_item_async(game_id, chat_message.id)
         self.logger.info(
-            f"{str(chat)} Added message: {chat_message.user}: {chat_message.message}"
+            f"{str(chat_ref)} Added message to queue"
         )
 
-        chat.update_last_message_time(incoming_message_start_time)
-        self.logger.debug(
-            f"Updated chat {str(chat)}"
-        )
-
-        if player in chat.humans:
-            return "Message received"  # Mocked for now
-        return None
+        response: BotResponse | None = await self.response_generator.generate_response_async(chat_ref)
+        if response is None:
+            return None
+        elif response.user == chat_ref.bot:
+            self.logger.info(f"{str(chat_ref)} Generated response: {response.user} - {response.message}")
+            return response.message
+        else:
+            return None
 
     @override
     async def async_end_game(self, game_id: int) -> None:
         """Override method to implement game end logic"""
-        self.storage_handler.remove_chat(game_id, self.persist_chats)
+        self.chats.remove(game_id)
+        await self.queues.dequeue_and_cancel_async(game_id)
         self.is_message_generating.pop(game_id, None)
 
     @override
