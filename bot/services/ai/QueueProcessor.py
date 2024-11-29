@@ -61,7 +61,7 @@ class QueueProcessor:
         The method processes the queue of messages for a chat with the given ID.
         """
         chat_ref: Chat = self.__storage.chats[id]
-        self.logger.info(f"Queue for chat {str(chat_ref)} has been started.")
+        self.logger.info(f"{str(chat_ref)} Queue up and running.")
 
         while self.running_flags[id]:
             self.logger.debug(f"Queue for chat {str(chat_ref)} is running.")
