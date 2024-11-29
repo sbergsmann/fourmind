@@ -29,7 +29,7 @@ class FourMind(TuringBotClient):
         openai_api_key: str,
         bot_name: str = BOT_NAME,
         language: str = DEFAULT_LANGUAGE,
-        persist_chats: bool = False
+        persist_chats: bool = True
     ) -> None:
         super().__init__(  # type: ignore
             api_key=turinggame_api_key,
@@ -39,6 +39,7 @@ class FourMind(TuringBotClient):
 
         self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
         self.persist_chats: bool = persist_chats
+        self.logger.info(f"Persist chats is set to '{persist_chats}'")
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(
@@ -104,11 +105,7 @@ class FourMind(TuringBotClient):
         response: BotResponse | None = await self.response_generator.generate_response_async(chat_ref)
         if response is None:
             return None
-        elif response.user == chat_ref.bot:
-            self.logger.info(f"{str(chat_ref)} Generated response: {response.user} - {response.message}")
-            return response.message
-        else:
-            return None
+        return response.message
 
     @override
     async def async_end_game(self, game_id: int) -> None:
