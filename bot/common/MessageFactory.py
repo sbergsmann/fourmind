@@ -1,7 +1,7 @@
 """"""
 
 from bot.models.chat import ChatMessage, RichChatMessage
-from bot.models.output import FourSidesAnalysis
+from bot.services.ai.models import FourSidesAnalysis
 
 
 class MessageFactory:
@@ -12,7 +12,7 @@ class MessageFactory:
         return RichChatMessage(
             id=base.id,
             message=base.message,
-            message_timedelta=base.message_timedelta,
+            time=base.time,
             sender=analysis.sender,
             receivers=analysis.receivers,
             factual_information=analysis.factual_information,
