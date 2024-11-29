@@ -6,6 +6,7 @@ This class shall be the only interface to interact with the storage of chats in 
 """
 
 from logging import Logger
+import os
 
 from bot.models.chat import Chat
 from bot.models.storage import ChatStorage
@@ -14,10 +15,16 @@ from bot.common import LoggerFactory
 
 class StorageHandler:
     logger: Logger = LoggerFactory.setup_logger(__name__)
+    STORE_PATH: str = os.path.abspath("data")
+    logger.info(f"Store path: {STORE_PATH}")
 
-    def __init__(self, storage: ChatStorage, persist: bool = False) -> None:
+    def __init__(self, storage: ChatStorage, persist: bool) -> None:
         self.__storage: ChatStorage = storage
         self.persist: bool = persist
+
+        if not os.path.exists(self.STORE_PATH):
+            os.makedirs(self.STORE_PATH)
+            self.logger.info(f"Store path created: {self.STORE_PATH}")
 
     def get(self, id: int) -> Chat | None:
         if id in self.__storage.active_games:
@@ -38,11 +45,12 @@ class StorageHandler:
                 chat = self.__storage.chats.pop(id)
                 if self.persist:
                     self._persist(chat)
+                self.logger.debug(f"{str(chat)} removed from storage.")
             except KeyError:
                 self.logger.error(f"Chat with ID {id} not found in storage")
 
-    async def remove_async(self, id: int) -> None:
-        self.logger.warning("remove_async is not implemented for ChatHandler")
-
     def _persist(self, chat: Chat) -> None:
-        raise NotImplementedError("persist must be implemented by the subclass")
+        """Store the chat in a .json file."""
+        with open(os.path.join(self.STORE_PATH, f"chat_{str(chat.id)[-8:]}.json"), "w") as file:
+            file.write(chat.model_dump_json(indent=4))
+            self.logger.debug(f"{str(chat)} persisted to file.")
