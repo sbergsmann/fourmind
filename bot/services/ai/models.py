@@ -17,7 +17,6 @@ class FourSidesAnalysis(BaseModel):
 
 
 class BotResponse(BaseModel):
-    user: str = Field(description="The user who sent the message.")
     message: str | None = Field(
         description="The message to send based on the given chat history."
     )

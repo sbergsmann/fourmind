@@ -1,4 +1,9 @@
-""""""
+"""
+
+TODO:
+- Add docstrings
+- Different response prompt if last message was from bot
+"""
 
 from logging import Logger
 from openai import AsyncOpenAI
