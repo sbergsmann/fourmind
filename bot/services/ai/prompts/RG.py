@@ -5,7 +5,7 @@ SYSTEM: str = """You are an AI-Assistant that is controlling user {user} in the 
 {game_description}
 """  # noqa E501
 
-INSTRUCTION: str = """Based on the following chat history, what message should you send to:
+INSTRUCTION: str = """Based on the following chat history, what message should user {user} send to:
 - perfectly blend in with the other two human users?
 - convince the human users that you are human as well?
 
@@ -24,7 +24,7 @@ Important:
     - do not name other participants in your message.
     - Minimize multiple sentences and side sentences.
 
-However, you dont need to send a message. If you ({user}) do not want to send a message, return 'None'.
+If user {user} does not need to reply to the current state of the chat history, return 'None'.
 
 ### Chat History
 {chat_history}
