@@ -29,12 +29,10 @@ class FourMind(TuringBotClient):
         openai_api_key: str,
         bot_name: str = BOT_NAME,
         language: str = DEFAULT_LANGUAGE,
-        persist_chats: bool = False
+        persist_chats: bool = False,
     ) -> None:
         super().__init__(  # type: ignore
-            api_key=turinggame_api_key,
-            bot_name=bot_name,
-            languages=language
+            api_key=turinggame_api_key, bot_name=bot_name, languages=language
         )
 
         self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
@@ -42,12 +40,10 @@ class FourMind(TuringBotClient):
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(
-            storage=self.__storage,
-            persist=persist_chats
+            storage=self.__storage, persist=persist_chats
         )
         self.queues: QueueProcessor = QueueProcessor(
-            storage=self.__storage,
-            client=self.oai_client
+            storage=self.__storage, client=self.oai_client
         )
         self.response_generator: ResponseGenerator = ResponseGenerator(
             client=self.oai_client
@@ -58,18 +54,16 @@ class FourMind(TuringBotClient):
     # Override Methods (5)
 
     @override
-    async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
+    async def async_start_game(
+        self, game_id: int, bot: str, pl1: str, pl2: str, language: str
+    ) -> bool:
         """Override method to implement game start logic.
 
         TODO perhaps async not needed here
         """
         # create a chat model
         chat: Chat = Chat(
-            id=game_id,
-            player1=pl1,
-            player2=pl2,
-            bot=bot,
-            language=language
+            id=game_id, player1=pl1, player2=pl2, bot=bot, language=language
         )
         self.chats.add(chat)
         self.queues.add_queue(game_id)
@@ -77,7 +71,9 @@ class FourMind(TuringBotClient):
         return True
 
     @override
-    async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:
+    async def async_on_message(
+        self, game_id: int, message: str, player: str, bot: str
+    ) -> str | None:
         """Override method to implement message processing.
 
         Notes:
@@ -86,26 +82,30 @@ class FourMind(TuringBotClient):
         incoming_message_start_time: DateTime = DateTime.now()
         chat_ref: Chat | None = self.chats.get(game_id)
         if chat_ref is None:
-            self.logger.error(f"Chat with ID {self.anonymize_id(game_id)} not found in storage")
+            self.logger.error(
+                f"Chat with ID {self.anonymize_id(game_id)} not found in storage"
+            )
             return None
 
         chat_message: ChatMessage = ChatMessage(
             id=len(chat_ref.messages),
             user=player,
             message=message,
-            time=incoming_message_start_time
+            time=incoming_message_start_time,
         )
         chat_ref.add_message(chat_message)
         await self.queues.enqueue_item_async(game_id, chat_message.id)
-        self.logger.info(
-            f"{str(chat_ref)} Added message to queue"
-        )
+        self.logger.info(f"{str(chat_ref)} Added message to queue")
 
-        response: BotResponse | None = await self.response_generator.generate_response_async(chat_ref)
+        response: BotResponse | None = (
+            await self.response_generator.generate_response_async(chat_ref)
+        )
         if response is None:
             return None
         elif response.user == chat_ref.bot:
-            self.logger.info(f"{str(chat_ref)} Generated response: {response.user} - {response.message}")
+            self.logger.info(
+                f"{str(chat_ref)} Generated response: {response.user} - {response.message}"
+            )
             return response.message
         else:
             return None
@@ -128,7 +128,9 @@ class FourMind(TuringBotClient):
         try:
             self.__event_loop.run_until_complete(self.connect())
         except Exception as e:
-            self.logger.exception(f"Error occurred while connecting to the TuringGame API: {e}")
+            self.logger.exception(
+                f"Error occurred while connecting to the TuringGame API: {e}"
+            )
 
     @override
     def on_shutdown(self):

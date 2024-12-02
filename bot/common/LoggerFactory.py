@@ -22,17 +22,18 @@ class LoggerFactory:
 
     # Coloring for log messages
     _color_mapping = {
-        'DEBUG': 37,  # white
-        'INFO': 36,   # cyan
-        'WARNING': 33,  # yellow
-        'ERROR': 31,  # red
-        'CRITICAL': 41,  # white on red bg
+        "DEBUG": 37,  # white
+        "INFO": 36,  # cyan
+        "WARNING": 33,  # yellow
+        "ERROR": 31,  # red
+        "CRITICAL": 41,  # white on red bg
     }
-    _prefix = '\033['
-    _suffix = '\033[0m'
+    _prefix = "\033["
+    _suffix = "\033[0m"
 
     class ColoredFormatter(logging.Formatter):
         """Custom formatter to apply color coding to log levels."""
+
         def __init__(self, fmt: str | None = None, **kwargs):  # type: ignore
             super().__init__(fmt, **kwargs)  # type: ignore
 
@@ -40,7 +41,9 @@ class LoggerFactory:
             rec = copy(record)
             levelname = rec.levelname
             seq = LoggerFactory._color_mapping.get(levelname, 37)  # Default to white
-            colored_levelname = f"{LoggerFactory._prefix}{seq}m{levelname}{LoggerFactory._suffix}"
+            colored_levelname = (
+                f"{LoggerFactory._prefix}{seq}m{levelname}{LoggerFactory._suffix}"
+            )
             rec.levelname = colored_levelname
             return super().format(rec)
 
@@ -48,7 +51,7 @@ class LoggerFactory:
     _stream_handler = logging.StreamHandler(stream=sys.stdout)
     _stream_handler.setFormatter(
         ColoredFormatter(
-            fmt='[%(asctime)s] %(levelname)s - %(filename)s:%(lineno)d(%(funcName)s): %(message)s'
+            fmt="[%(asctime)s] %(levelname)s - %(filename)s:%(lineno)d(%(funcName)s): %(message)s"
         )
     )
 
@@ -58,9 +61,7 @@ class LoggerFactory:
 
     @staticmethod
     def setup_logger(
-        name: str,
-        level: Optional[int] = None,
-        logger: Optional[logging.Logger] = None
+        name: str, level: Optional[int] = None, logger: Optional[logging.Logger] = None
     ) -> logging.Logger:
         """
         Sets up a logger with the specified name, log level, queue handler, and queue listener.

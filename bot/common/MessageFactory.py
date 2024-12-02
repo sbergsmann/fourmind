@@ -7,7 +7,9 @@ from bot.services.ai.models import FourSidesAnalysis
 class MessageFactory:
 
     @staticmethod
-    def transform_message(base: ChatMessage, analysis: FourSidesAnalysis) -> RichChatMessage:
+    def transform_message(
+        base: ChatMessage, analysis: FourSidesAnalysis
+    ) -> RichChatMessage:
         """"""
         return RichChatMessage(
             id=base.id,
@@ -19,5 +21,5 @@ class MessageFactory:
             self_revelation=analysis.self_revelation,
             relationship=analysis.relationship,
             appeal=analysis.appeal,
-            linked_messages=analysis.linked_messages
+            linked_messages=analysis.linked_messages,
         )

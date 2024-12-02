@@ -1,6 +1,5 @@
 """"""
 
-
 import asyncio
 from logging import Logger
 from typing import Dict
@@ -19,11 +18,7 @@ class QueueProcessor:
     BASE_MODEL: str = "gpt-4o-mini-2024-07-18"
     TEMPERATURE: float = 0.65
 
-    def __init__(
-        self,
-        storage: ChatStorage,
-        client: AsyncOpenAI
-    ) -> None:
+    def __init__(self, storage: ChatStorage, client: AsyncOpenAI) -> None:
         self.__storage: ChatStorage = storage
         self.client: AsyncOpenAI = client
 
@@ -53,7 +48,9 @@ class QueueProcessor:
             _ = self.queues.pop(id)
             _ = self.tasks.pop(id)
         except KeyError:
-            self.logger.warning(f"Queue or Task for id {id} not found on delete attempt.")
+            self.logger.warning(
+                f"Queue or Task for id {id} not found on delete attempt."
+            )
 
     async def process_queue(self, id: int) -> None:
         """An async method deployed as a separate task for each queue.
@@ -68,16 +65,22 @@ class QueueProcessor:
             # get
             message_id: int = await self.queues[id].get()
 
-            message: ChatMessage | RichChatMessage | None = chat_ref.get_message(message_id)
+            message: ChatMessage | RichChatMessage | None = chat_ref.get_message(
+                message_id
+            )
             if message is None:
-                self.logger.error(f"Message with ID {message_id} not found in chat {str(chat_ref)}")
+                self.logger.error(
+                    f"Message with ID {message_id} not found in chat {str(chat_ref)}"
+                )
                 continue
             elif isinstance(message, RichChatMessage):
                 self.logger.info(f"Skipping RichChatMessage with ID {message_id}")
                 continue
 
             # act
-            rich_chat_message: RichChatMessage | None = await self._infer_async(chat_ref, message)
+            rich_chat_message: RichChatMessage | None = await self._infer_async(
+                chat_ref, message
+            )
 
             # set
             if rich_chat_message is not None:
@@ -86,36 +89,41 @@ class QueueProcessor:
 
         self.logger.info(f"Queue for chat {str(chat_ref)} has been stopped.")
 
-    async def _infer_async(self, chat_ref: Chat, message: ChatMessage) -> RichChatMessage | None:
+    async def _infer_async(
+        self, chat_ref: Chat, message: ChatMessage
+    ) -> RichChatMessage | None:
         """Executes an async api call to openai to analyze the message.
 
         Analysis is based on Four Sides Method from Friedemann Schulz von Thun.
         """
         try:
-            response: ParsedChatCompletion[FourSidesAnalysis] = await self.client.beta.chat.completions.parse(
-                model=self.BASE_MODEL,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": prompts.QP.SYSTEM
-                    },
-                    {
-                        "role": "user",
-                        "content": prompts.QP.INSTRUCTION.format(
-                            participants=chat_ref.format_participants(),
-                            chat_history=chat_ref.get_formatted_chat_history(message.id),
-                            message=str(message)
-                        )
-                    }
-                ],
-                temperature=self.TEMPERATURE,
-                response_format=FourSidesAnalysis
+            response: ParsedChatCompletion[FourSidesAnalysis] = (
+                await self.client.beta.chat.completions.parse(
+                    model=self.BASE_MODEL,
+                    messages=[
+                        {"role": "system", "content": prompts.QP.SYSTEM},
+                        {
+                            "role": "user",
+                            "content": prompts.QP.INSTRUCTION.format(
+                                participants=chat_ref.format_participants(),
+                                chat_history=chat_ref.get_formatted_chat_history(
+                                    message.id
+                                ),
+                                message=str(message),
+                            ),
+                        },
+                    ],
+                    temperature=self.TEMPERATURE,
+                    response_format=FourSidesAnalysis,
+                )
             )
         except Exception as e:
             self.logger.error(f"Failed to infer response: {e}")
             return None
 
-        response_message: ParsedChatCompletionMessage[FourSidesAnalysis] = response.choices[0].message
+        response_message: ParsedChatCompletionMessage[FourSidesAnalysis] = (
+            response.choices[0].message
+        )
         if not response_message.parsed:
             self.logger.warning(f"Failed to parse response: {response_message.refusal}")
             return None
@@ -123,5 +131,6 @@ class QueueProcessor:
         self.logger.debug("Succesfully parsed response")
         analysis_response: FourSidesAnalysis = response_message.parsed
         rich_chat_message: RichChatMessage = MessageFactory.transform_message(
-            message, analysis_response)
+            message, analysis_response
+        )
         return rich_chat_message
