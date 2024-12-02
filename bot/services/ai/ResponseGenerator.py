@@ -24,6 +24,11 @@ class ResponseGenerator:
         self.client: AsyncOpenAI = client
 
     async def generate_response_async(self, chat_ref: Chat) -> BotResponse | None:
+        """Generate a response based on the given chat history.
+
+        Raises:
+            Exception: If the response generation fails.
+        """
         try:
             response: ParsedChatCompletion[BotResponse] = (
                 await self.client.beta.chat.completions.parse(
