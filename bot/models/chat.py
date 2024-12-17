@@ -13,10 +13,7 @@ class ChatMessage(BaseModel):
 
     def __str__(self) -> str:
         return "[#{id}] {user} ({time}s ago): {message}".format(
-            id=self.id,
-            user=self.user,
-            time=(DateTime.now() - self.time).seconds,
-            message=self.message
+            id=self.id, user=self.user, time=(DateTime.now() - self.time).seconds, message=self.message
         )
 
 
@@ -37,30 +34,28 @@ class RichChatMessage(BaseModel):
 
     def __str__(self) -> str:
         receivers: str = (
-            "- directed to: " + ", ".join(self.receivers)
-            if self.receivers else "directed to: unclear"
+            "- directed to: " + ", ".join(self.receivers) if self.receivers else "directed to: unclear"
         )
         linked_to: str = (
             "- linked to: " + "[" + ", ".join(["#" + str(id) for id in self.linked_messages]) + "]"
-            if self.linked_messages else ""
+            if self.linked_messages
+            else ""
         )
-        return (
-            """#{id} {sender} ({time}s ago): {message}
+        return """#{id} {sender} ({time}s ago): {message}
     {receivers}
     - factual info: {factual_information}
     - self-revelation: {self_revelation}
     - appeal: {appeal}
     {linked_to}""".format(
-                id=self.id,
-                sender=self.sender,
-                time=(DateTime.now() - self.time).seconds,
-                message=self.message,
-                receivers=receivers,
-                factual_information=self.factual_information,
-                self_revelation=self.self_revelation,
-                appeal=self.appeal,
-                linked_to=linked_to
-            )
+            id=self.id,
+            sender=self.sender,
+            time=(DateTime.now() - self.time).seconds,
+            message=self.message,
+            receivers=receivers,
+            factual_information=self.factual_information,
+            self_revelation=self.self_revelation,
+            appeal=self.appeal,
+            linked_to=linked_to,
         )
 
 
@@ -111,7 +106,5 @@ class Chat(BaseModel):
 
     def __str__(self) -> str:
         return "(ID {id}, #{nr_messages}, {duration}s)".format(
-            id="..." + str(self.id)[-4:],
-            nr_messages=len(self.messages),
-            duration=self.duration.seconds
+            id="..." + str(self.id)[-4:], nr_messages=len(self.messages), duration=self.duration.seconds
         )

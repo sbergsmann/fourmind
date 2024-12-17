@@ -31,50 +31,36 @@ class FourMind(TuringBotClient):
         language: str = DEFAULT_LANGUAGE,
         persist_chats: bool = True,
     ) -> None:
-        super().__init__(  # type: ignore
-            api_key=turinggame_api_key, bot_name=bot_name, languages=language
-        )
+        super().__init__(api_key=turinggame_api_key, bot_name=bot_name, languages=language)  # type: ignore
 
         self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
         self.persist_chats: bool = persist_chats
         self.logger.info(f"Persist chats is set to '{persist_chats}'")
 
         self.__storage = ChatStorage()
-        self.chats: StorageHandler = StorageHandler(
-            storage=self.__storage, persist=persist_chats
-        )
-        self.queues: QueueProcessor = QueueProcessor(
-            storage=self.__storage, client=self.oai_client
-        )
-        self.response_generator: ResponseGenerator = ResponseGenerator(
-            client=self.oai_client
-        )
+        self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
+        self.queues: QueueProcessor = QueueProcessor(storage=self.__storage, client=self.oai_client)
+        self.response_generator: ResponseGenerator = ResponseGenerator(client=self.oai_client)
         self.is_message_generating: Dict[int, int] = {}
         # indicates whether a message generation is currently running
 
     # Override Methods (5)
 
     @override
-    async def async_start_game(
-        self, game_id: int, bot: str, pl1: str, pl2: str, language: str
-    ) -> bool:
+    async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
         """Override method to implement game start logic.
 
         TODO perhaps async not needed here
         """
         # create a chat model
-        chat: Chat = Chat(
-            id=game_id, player1=pl1, player2=pl2, bot=bot, language=language
-        )
+        chat: Chat = Chat(id=game_id, player1=pl1, player2=pl2, bot=bot, language=language)
         self.chats.add(chat)
         self.queues.add_queue(game_id)
         self.is_message_generating[game_id] = 0
         return True
 
     @override
-    async def async_on_message(
-        self, game_id: int, message: str, player: str, bot: str
-    ) -> str | None:
+    async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:
         """Override method to implement message processing.
 
         Notes:
@@ -83,9 +69,7 @@ class FourMind(TuringBotClient):
         incoming_message_start_time: DateTime = DateTime.now()
         chat_ref: Chat | None = self.chats.get(game_id)
         if chat_ref is None:
-            self.logger.error(
-                f"Chat with ID {self.anonymize_id(game_id)} not found in storage"
-            )
+            self.logger.error(f"Chat with ID {self.anonymize_id(game_id)} not found in storage")
             return None
 
         chat_message: ChatMessage = ChatMessage(
@@ -98,9 +82,11 @@ class FourMind(TuringBotClient):
         await self.queues.enqueue_item_async(game_id, chat_message.id)
         self.logger.info(f"{str(chat_ref)} Added message to queue")
 
-        response: BotResponse | None = (
-            await self.response_generator.generate_response_async(chat_ref)
-        )
+        response_decision: bool = await self.response_generator.is_response_needed_async(chat_ref)
+        if not response_decision:
+            return None
+
+        response: BotResponse | None = await self.response_generator.generate_response_async(chat_ref)
         if response is None:
             return None
         return response.message
@@ -123,9 +109,7 @@ class FourMind(TuringBotClient):
         try:
             self.__event_loop.run_until_complete(self.connect())
         except Exception as e:
-            self.logger.exception(
-                f"Error occurred while connecting to the TuringGame API: {e}"
-            )
+            self.logger.exception(f"Error occurred while connecting to the TuringGame API: {e}")
 
     @override
     def on_shutdown(self):
