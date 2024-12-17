@@ -2,9 +2,19 @@
     "python.analysis.typeCheckingMode": "strict",
     "python.analysis.autoImportCompletions": false,
     "python.analysis.autoFormatStrings": true,
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
+    "python.analysis.completeFunctionParens": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "black-formatter.args": [
+        "--line-length", "110",  // Maximum line length for black; same as flake8
+    ],
     "flake8.args": [
-        "--max-line-length=110"
+        "--max-line-length=110",  // Maximum line length for black; same as flake8
+        //"--ignore=...",  // Ignore specific flake8 errors e.g. W291: trailing whitespace in string
     ],
 }
