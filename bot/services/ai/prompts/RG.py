@@ -29,3 +29,16 @@ If user {user} does not need to reply to the current state of the chat history, 
 ### Chat History
 {chat_history}
 """  # noqa E501
+
+OBSERVATION_SYSTEM: str = """You are observing a chat in the Turing Game.
+
+{game_description}
+"""  # noqa E501
+
+OBSERVATION_INSTRUCTION: str = """Based on the current Chat history, decide whether user {user} currently has a need to reply.
+
+# Users online in the chat
+{participants}
+
+# Chat History
+{chat_history}"""  # noqa E501
