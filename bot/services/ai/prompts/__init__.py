@@ -1,6 +1,7 @@
 from . import FSA
-from . import GAME
+from . import game
 from . import QP
 from . import RG
+from . import behavior
 
-__all__ = ["FSA", "GAME", "QP", "RG"]
+__all__ = ["FSA", "game", "QP", "RG", "behavior"]

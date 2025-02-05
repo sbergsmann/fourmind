@@ -13,3 +13,6 @@ In order to use the TuringBotClient library, you need to apply the following pat
 
 - Correct Response Generation (currently never ending loop, bot reacts to its own messages too much)
 - Objective Function (based on the Four-Sides Model) for low-level decision making based on high level objective to be reached. Frames the conversation in a way that the bot can make decisions based on the objective.
+
+## Ideas
+- Write multiple responses by separating them with a "\n".
