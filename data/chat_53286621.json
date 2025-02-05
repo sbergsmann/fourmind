@@ -1,0 +1,59 @@
+{
+    "id": -45114082162153286621,
+    "start_time": "2024-12-31T10:58:31.632789",
+    "last_message_time": "2024-12-31T10:59:05.935139",
+    "player1": "Blue",
+    "player2": "Yellow",
+    "bot": "Purple",
+    "language": "en",
+    "messages": {
+        "0": {
+            "id": 0,
+            "sender": "Blue",
+            "message": "hey there",
+            "time": "2024-12-31T10:58:33.639536"
+        },
+        "1": {
+            "id": 1,
+            "sender": "Purple",
+            "message": "hi there",
+            "time": "2024-12-31T10:58:37.288825"
+        },
+        "2": {
+            "id": 2,
+            "sender": "Purple",
+            "message": "how's it going?",
+            "time": "2024-12-31T10:58:39.070288"
+        },
+        "3": {
+            "id": 3,
+            "sender": "Yellow",
+            "message": "moin guys",
+            "time": "2024-12-31T10:58:41.059796"
+        },
+        "4": {
+            "id": 4,
+            "sender": "Blue",
+            "message": "ARe you german Yellow?",
+            "time": "2024-12-31T10:58:50.469534"
+        },
+        "5": {
+            "id": 5,
+            "sender": "Yellow",
+            "message": "jep I am, how did you notice?",
+            "time": "2024-12-31T10:59:01.110871"
+        },
+        "6": {
+            "id": 6,
+            "sender": "Purple",
+            "message": "just a guess",
+            "time": "2024-12-31T10:59:02.774444"
+        },
+        "7": {
+            "id": 7,
+            "sender": "Purple",
+            "message": "your style kinda gives it away",
+            "time": "2024-12-31T10:59:05.935139"
+        }
+    }
+}
