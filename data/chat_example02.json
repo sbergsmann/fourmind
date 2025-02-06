@@ -12,7 +12,7 @@
             "message": "hey there",
             "time": "2025-01-02T17:19:37.492296",
             "sender": "Red",
-            "receiver": "Purple",
+            "receiver": null,
             "factual_information": "Red is initiating a conversation with a simple greeting.",
             "self_revelation": "Red is friendly and open to communication.",
             "relationship": "Red likely sees Purple as a conversational partner or friend.",
