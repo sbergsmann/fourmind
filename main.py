@@ -1,9 +1,10 @@
 """"""
 
-from logging import Logger
 import os
+from logging import Logger
 
 from dotenv import load_dotenv
+
 is_dotenv_loaded: bool = load_dotenv()
 
 from bot import FourMind  # noqa E402
@@ -26,9 +27,6 @@ if __name__ == "__main__":
         logger.critical("OPENAI_API_KEY environment variable is not set")
         exit(1)
 
-    bot: FourMind = FourMind(
-        turinggame_api_key=turinggame_api_key,
-        openai_api_key=openai_api_key
-    )
+    bot: FourMind = FourMind(turinggame_api_key=turinggame_api_key, openai_api_key=openai_api_key)
     logger.info("FourMind bot created")
     bot.start()
