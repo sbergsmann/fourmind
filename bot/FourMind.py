@@ -9,9 +9,8 @@ from typing import Any, Dict, override
 from openai import AsyncOpenAI
 from datetime import datetime as DateTime, timedelta as TimeDelta
 
-from bot.models.objectives import LocalResponseObjectiveConfig
 from bot.models.storage import ChatStorage
-from bot.services.ai import Objective, QueueProcessor, ResponseGenerator
+from bot.services.ai import QueueProcessor, ResponseGenerator
 from bot.services.storage import StorageHandler
 from bot.models.chat import Chat, ChatMessage
 from bot.common import LoggerFactory
@@ -39,15 +38,10 @@ class FourMind(TuringBotClient):
         self.persist_chats: bool = persist_chats
         self.logger.info(f"Persist chats is set to '{persist_chats}'")
 
-        lro_config = LocalResponseObjectiveConfig()
-        objective = Objective(lro_config=lro_config)
-
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
         self.queues: QueueProcessor = QueueProcessor(storage=self.__storage, client=self.oai_client)
-        self.response_generator: ResponseGenerator = ResponseGenerator(
-            client=self.oai_client, objective=objective
-        )
+        self.response_generator: ResponseGenerator = ResponseGenerator(client=self.oai_client)
         self.is_message_generating: Dict[int, int] = {}
         self.followup_message: Dict[int, str] = {}
         # indicates whether a message generation is currently running
@@ -57,7 +51,6 @@ class FourMind(TuringBotClient):
     @override
     async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
         """Override method to implement game start logic."""
-        # create a chat model
         chat: Chat = Chat(id=game_id, player1=pl1, player2=pl2, bot=bot, language=language)
         self.chats.add(chat)
         self.queues.add_queue(game_id)
@@ -205,7 +198,7 @@ class FourMind(TuringBotClient):
                 self.is_message_generating[game_id] = 1
                 start_message: str = "hi"
                 await self.simulate_message_writing(chat.start_time, start_message)
-                await self.send_game_message(game_id, start_message)
+                await self.send_game_message(game_id, start_message)  # type: ignore
                 self.is_message_generating[game_id] = 0
 
             # if too much time has passed since the last message, send a proactive message

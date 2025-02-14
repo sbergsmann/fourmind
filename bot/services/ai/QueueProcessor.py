@@ -6,7 +6,7 @@ from typing import Dict
 
 from openai import AsyncOpenAI
 from openai.types.chat import ParsedChatCompletionMessage, ParsedChatCompletion
-from bot.common import LoggerFactory, MessageFactory
+from bot.common import LoggerFactory
 from bot.models.chat import Chat, ChatMessage, RichChatMessage
 from bot.models.storage import ChatStorage
 from bot.services.ai import prompts
@@ -92,16 +92,16 @@ class QueueProcessor:
                 messages=[
                     {
                         "role": "system",
-                        "content": prompts.QP.SYSTEM.format(
+                        "content": prompts.FourSides.system.format(
                             ai_user=chat_ref.bot,
                             target_user=chat_ref.humans[0],
                             blamed_user=chat_ref.humans[1],
-                            game_description=prompts.game.GAME_DESCRIPTION,
+                            game_description=prompts,
                         ),
                     },
                     {
                         "role": "user",
-                        "content": prompts.QP.INSTRUCTION.format(
+                        "content": prompts.FourSides.instruction.format(
                             participants=chat_ref.format_participants(),
                             chat_history=chat_ref.get_formatted_chat_history(stop_id=message.id),
                             message=str(message),
@@ -122,5 +122,5 @@ class QueueProcessor:
 
         self.logger.debug("Succesfully parsed response")
         analysis_response: FourSidesAnalysis = response_message.parsed
-        rich_chat_message: RichChatMessage = MessageFactory.transform_message(message, analysis_response)
+        rich_chat_message: RichChatMessage = RichChatMessage.from_base(message, analysis_response)
         return rich_chat_message

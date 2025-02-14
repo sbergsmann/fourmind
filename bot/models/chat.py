@@ -1,61 +1,86 @@
-"""
-Old message format: [#{id}] {sender} ({time}s ago): {message}
-"""
+"""Chat and message models for the bot."""
 
 from datetime import datetime as DateTime
-from typing import Dict, List
+from typing import Any, Dict, List
 from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
-    id: int
-    sender: str
-    message: str
-    time: DateTime
+    """Basic chat message format for incoming messages."""
 
-    def __str__(self) -> str:
-        return "[#{id}] {sender}: {message}".format(
-            id=self.id, sender=self.sender, message=self.message  # time=(DateTime.now() - self.time).seconds,
-        )
-
-
-class RichChatMessage(BaseModel):
     # base data
     id: int
+    sender: str
     message: str
     time: DateTime
 
+    # helpers
+    __str_template__: str = "[#{id}] ({time} ago) {sender}: {message}"
+
+    def __str__(self) -> str:
+        return self.__str_template__.format(
+            id=self.id, sender=self.sender, message=self.message, time=self.format_time()
+        )
+
+    def format_time(self) -> str:
+        """Format the time difference of the message to now.
+
+        Returns:
+            str: the formatted string.
+        """
+        seconds: int = (DateTime.now() - self.time).seconds
+
+        if seconds < 60:
+            return f"{seconds} sec"
+        elif seconds // 60 < 0 and seconds // 3600 < 1:
+            return f"{seconds//60} min"
+        else:
+            return f"{seconds//3600} hr"
+
+
+class RichChatMessage(ChatMessage):
+    """Rich chat message format for enriched messages after analysis."""
+
     # enriched data
-    sender: str
     receiver: str
     factual_information: str
     self_revelation: str
     relationship: str
     appeal: str
-    linked_messages: List[int]
+
+    # helpers
+    __str_template__: str = """\
+[#{id}] ({time} ago) {sender}: {message}
+- Receivers: {receivers}
+- Factual Info: {factual_information}
+- Self-Revelation: {self_revelation}
+- Appeal: {appeal}"""
 
     def __str__(self) -> str:
-        receiver: str = "- Receivers: " + self.receiver if self.receiver else "directed to: unclear"
-        linked_to: str = (
-            "- Linked Messages: " + "[" + ", ".join(["#" + str(id) for id in self.linked_messages]) + "]"
-            if self.linked_messages
-            else ""
-        )
-        return """[#{id}] {sender}: {message}
-    {receivers}
-    - Factual Info: {factual_information}
-    - Self-Revelation: {self_revelation}
-    - Appeal: {appeal}
-    {linked_to}""".format(
+        return self.__str_template__.format(
             id=self.id,
+            time=self.format_time(),
             sender=self.sender,
-            # time=(DateTime.now() - self.time).seconds,
             message=self.message,
-            receivers=receiver,
+            receivers=self.receiver if self.receiver else "Unknown",
             factual_information=self.factual_information,
             self_revelation=self.self_revelation,
             appeal=self.appeal,
-            linked_to=linked_to,
+        )
+
+    @classmethod
+    def from_base(cls, base: ChatMessage, analysis: Any) -> "RichChatMessage":
+        """"""
+        return cls(
+            id=base.id,
+            message=base.message,
+            time=base.time,
+            sender=analysis.sender,
+            receiver=analysis.receiver,
+            factual_information=analysis.factual_information,
+            self_revelation=analysis.self_revelation,
+            relationship=analysis.relationship,
+            appeal=analysis.appeal,
         )
 
 
@@ -152,7 +177,6 @@ if __name__ == "__main__":
             self_revelation="Alice is polite",
             relationship="Friendly",
             appeal="Engage in conversation",
-            linked_messages=[1, 2],
         ),
         RichChatMessage(
             id=5,
@@ -164,7 +188,6 @@ if __name__ == "__main__":
             self_revelation="Bob is polite",
             relationship="Friendly",
             appeal="Continue conversation",
-            linked_messages=[3],
         ),
     ]
 
