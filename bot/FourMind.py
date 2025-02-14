@@ -1,19 +1,21 @@
 """This module contains the FourMind Bot, which is a subclass of TuringBotClient."""
 
 import asyncio
-from logging import Logger
 import random
 import signal
-from TuringBotClient import TuringBotClient  # type: ignore
+from datetime import datetime as DateTime
+from datetime import timedelta as TimeDelta
+from logging import Logger
 from typing import Any, Dict, override
-from openai import AsyncOpenAI
-from datetime import datetime as DateTime, timedelta as TimeDelta
 
+from openai import AsyncOpenAI
+from TuringBotClient import TuringBotClient  # type: ignore
+
+from bot.common import LoggerFactory
+from bot.models.chat import Chat, ChatMessage
 from bot.models.storage import ChatStorage
 from bot.services.ai import QueueProcessor, ResponseGenerator
 from bot.services.storage import StorageHandler
-from bot.models.chat import Chat, ChatMessage
-from bot.common import LoggerFactory
 
 
 class FourMind(TuringBotClient):
@@ -63,8 +65,16 @@ class FourMind(TuringBotClient):
     async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:
         """Override method to implement message processing.
 
-        Notes:
-        - return type of overridden method was changed to str | None
+        - Take the incoming message
+        - add to the respective chat history
+        - queue the message to be analyzed in terms of the Four-Sides model
+            This happens in a separate loop and is completely decoupled from the message generation.
+        - check if any follow-up message is available based on previous messages
+            In some cases the bot response is split and the follow-up message is immediately
+            sent as a reaction to its own incoming message.
+        - generate a response based on the chat history
+        - simulate the time it takes to write the final message
+        - return the message
         """
         incoming_message_start_time: DateTime = DateTime.now()
         if self.is_message_generating.get(game_id) == 1:
