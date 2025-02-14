@@ -6,8 +6,9 @@ TODO:
 """
 
 from logging import Logger
+
 from openai import AsyncOpenAI
-from openai.types.chat import ParsedChatCompletionMessage, ParsedChatCompletion
+from openai.types.chat import ParsedChatCompletion, ParsedChatCompletionMessage
 
 from bot.common import LoggerFactory
 from bot.models.chat import Chat
@@ -53,34 +54,34 @@ class ResponseGenerator:
     ) -> ChatSimulationReponse | None:
         """Generate a response based on the given chat history."""
         try:
-            response: ParsedChatCompletion[ChatSimulationReponse] = (
-                await self.client.beta.chat.completions.parse(
-                    model=self.BASE_MODEL,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": prompts.Simulation.system.format(
-                                game_description=prompts.General.game,
-                                characteristics=prompts.General.behavior,
-                                target_user=chat.humans[0],
-                                blamed_user=chat.humans[1],
-                                ai_user=chat.bot,
+            response: ParsedChatCompletion[
+                ChatSimulationReponse
+            ] = await self.client.beta.chat.completions.parse(
+                model=self.BASE_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": prompts.Simulation.system.format(
+                            game_description=prompts.General.game,
+                            characteristics=prompts.General.behavior,
+                            target_user=chat.humans[0],
+                            blamed_user=chat.humans[1],
+                            ai_user=chat.bot,
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": prompts.Simulation.instruction.format(
+                            num_simulated_messages=7,
+                            chat_history=chat.get_formatted_chat_history(),
+                            proactive_behavior=(
+                                prompts.Simulation.proactive.format(ai_user=chat.bot) if proactive else ""
                             ),
-                        },
-                        {
-                            "role": "user",
-                            "content": prompts.Simulation.instruction.format(
-                                num_simulated_messages=7,
-                                chat_history=chat.get_formatted_chat_history(),
-                                proactive_behavior=(
-                                    prompts.Simulation.proactive.format(ai_user=chat.bot) if proactive else ""
-                                ),
-                            ),
-                        },
-                    ],
-                    temperature=self.TEMPERATURE,
-                    response_format=ChatSimulationReponse,
-                )
+                        ),
+                    },
+                ],
+                temperature=self.TEMPERATURE,
+                response_format=ChatSimulationReponse,
             )
         except Exception as e:
             self.logger.error(f"Failed to generate response: {e}")

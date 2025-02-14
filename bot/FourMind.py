@@ -51,7 +51,7 @@ class FourMind(TuringBotClient):
     # Override Methods (5)
 
     @override
-    async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:
+    async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:  # type: ignore
         """Override method to implement game start logic."""
         chat: Chat = Chat(id=game_id, player1=pl1, player2=pl2, bot=bot, language=language)
         self.chats.add(chat)
@@ -62,7 +62,7 @@ class FourMind(TuringBotClient):
         return True
 
     @override
-    async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:
+    async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:  # type: ignore
         """Override method to implement message processing.
 
         - Take the incoming message

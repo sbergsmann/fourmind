@@ -1,10 +1,9 @@
 import logging
 import os
-
+import sys
 from copy import copy
 from logging.handlers import QueueHandler, QueueListener
 from queue import SimpleQueue
-import sys
 from typing import Optional
 
 
@@ -41,9 +40,7 @@ class LoggerFactory:
             rec = copy(record)
             levelname = rec.levelname
             seq = LoggerFactory._color_mapping.get(levelname, 37)  # Default to white
-            colored_levelname = (
-                f"{LoggerFactory._prefix}{seq}m{levelname}{LoggerFactory._suffix}"
-            )
+            colored_levelname = f"{LoggerFactory._prefix}{seq}m{levelname}{LoggerFactory._suffix}"
             rec.levelname = colored_levelname
             return super().format(rec)
 

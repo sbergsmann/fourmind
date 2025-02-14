@@ -5,7 +5,8 @@ from logging import Logger
 from typing import Dict
 
 from openai import AsyncOpenAI
-from openai.types.chat import ParsedChatCompletionMessage, ParsedChatCompletion
+from openai.types.chat import ParsedChatCompletion, ParsedChatCompletionMessage
+
 from bot.common import LoggerFactory
 from bot.models.chat import Chat, ChatMessage, RichChatMessage
 from bot.models.storage import ChatStorage

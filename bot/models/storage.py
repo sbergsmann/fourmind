@@ -1,7 +1,8 @@
 """"""
 
 from typing import Dict, Set
-from pydantic import Field, BaseModel
+
+from pydantic import BaseModel, Field
 
 from bot.models.chat import Chat
 

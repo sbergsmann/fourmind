@@ -2,6 +2,7 @@
 
 from datetime import datetime as DateTime
 from typing import Any, Dict, List
+
 from pydantic import BaseModel, Field
 
 
@@ -33,9 +34,9 @@ class ChatMessage(BaseModel):
         if seconds < 60:
             return f"{seconds} sec"
         elif seconds // 60 < 0 and seconds // 3600 < 1:
-            return f"{seconds//60} min"
+            return f"{seconds // 60} min"
         else:
-            return f"{seconds//3600} hr"
+            return f"{seconds // 3600} hr"
 
 
 class RichChatMessage(ChatMessage):

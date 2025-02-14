@@ -5,16 +5,9 @@
     "python.analysis.completeFunctionParens": false,
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
     },
-    "black-formatter.args": [
-        "--line-length", "110",  // Maximum line length for black; same as flake8
-    ],
-    "flake8.args": [
-        "--max-line-length=110",  // Maximum line length for black; same as flake8
-        //"--ignore=...",  // Ignore specific flake8 errors e.g. W291: trailing whitespace in string
-    ],
 }
