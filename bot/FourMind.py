@@ -63,19 +63,6 @@ class FourMind(TuringBotClient):
 
     @override
     async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:  # type: ignore
-        """Override method to implement message processing.
-
-        - Take the incoming message
-        - add to the respective chat history
-        - queue the message to be analyzed in terms of the Four-Sides model
-            This happens in a separate loop and is completely decoupled from the message generation.
-        - check if any follow-up message is available based on previous messages
-            In some cases the bot response is split and the follow-up message is immediately
-            sent as a reaction to its own incoming message.
-        - generate a response based on the chat history
-        - simulate the time it takes to write the final message
-        - return the message
-        """
         incoming_message_start_time: DateTime = DateTime.now()
         if self.is_message_generating.get(game_id) == 1:
             self.logger.info(f"Message generation already in progress for {self.anonymize_id(game_id)}")
