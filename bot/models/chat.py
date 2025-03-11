@@ -1,5 +1,3 @@
-"""Chat and message models for the bot."""
-
 import random
 from datetime import datetime as DateTime
 from typing import Any, Dict, List
@@ -152,45 +150,3 @@ class Chat(BaseModel):
         return "(ID {id}, #{nr_messages}, {duration}s)".format(
             id="..." + str(self.id)[-4:], nr_messages=len(self.messages), duration=self.duration.seconds
         )
-
-
-if __name__ == "__main__":
-    from datetime import timedelta as TimeDelta
-    from typing import List
-
-    # Example Usage
-    chat: Chat = Chat(id=1, humans=["Alice", "Bob"], bot="AI", language="en")
-    messages: List[ChatMessage | RichChatMessage] = [
-        ChatMessage(id=1, sender="Alice", message="Hello", time=chat.start_time + TimeDelta(seconds=1)),
-        ChatMessage(
-            id=2, sender="Bob", message="Hi, Alice! How are you?", time=chat.start_time + TimeDelta(seconds=3)
-        ),
-        ChatMessage(id=3, sender="AI", message="Hey guys", time=chat.start_time + TimeDelta(seconds=3.1)),
-        RichChatMessage(
-            id=4,
-            sender="Alice",
-            message="I'm good, thanks! How about you?",
-            time=chat.start_time + TimeDelta(seconds=5.8),
-            receivers=["Bob"],
-            factual_information="Alice is good",
-            self_revelation="Alice is polite",
-            relationship="Friendly",
-            appeal="Engage in conversation",
-        ),
-        RichChatMessage(
-            id=5,
-            sender="Bob",
-            message="I'm doing well, thanks for asking!",
-            time=chat.start_time + TimeDelta(seconds=10.2),
-            receivers=["Alice"],
-            factual_information="Bob is well",
-            self_revelation="Bob is polite",
-            relationship="Friendly",
-            appeal="Continue conversation",
-        ),
-    ]
-
-    for msg in messages:
-        chat.add_message(msg)
-
-    print(chat.get_last_n_messages(3))

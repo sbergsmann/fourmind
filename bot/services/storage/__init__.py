@@ -1,5 +1,3 @@
-from .StorageHandler import StorageHandler
+from .storage_handler import StorageHandler
 
-__all__ = [
-    'StorageHandler'
-]
+__all__ = ["StorageHandler"]

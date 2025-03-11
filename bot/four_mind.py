@@ -14,7 +14,9 @@ from TuringBotClient import TuringBotClient  # type: ignore
 from bot.common import LoggerFactory
 from bot.models.chat import Chat, ChatMessage
 from bot.models.storage import ChatStorage
-from bot.services.ai import QueueProcessor, ResponseGenerator
+from bot.services.ai import ChatSimulator, QueueProcessor
+from bot.services.ai.llm_inference import LLMConfig
+from bot.services.ai.response_generator import IResponseGenerator
 from bot.services.storage import StorageHandler
 
 
@@ -42,8 +44,21 @@ class FourMind(TuringBotClient):
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
-        self.queues: QueueProcessor = QueueProcessor(storage=self.__storage, client=self.oai_client)
-        self.response_generator: ResponseGenerator = ResponseGenerator(client=self.oai_client)
+        self.queues: QueueProcessor = QueueProcessor(
+            storage=self.__storage,
+            client=self.oai_client,
+            llmconfig=LLMConfig(
+                base_model="gpt-4o-mini-2024-07-18",
+                temperature=0.45,
+            ),
+        )
+        self.response_generator: IResponseGenerator = ChatSimulator(
+            client=self.oai_client,
+            llmconfig=LLMConfig(
+                base_model="gpt-4o-mini-2024-07-18",
+                temperature=0.70,
+            ),
+        )
         self.is_message_generating: Dict[int, int] = {}
         self.followup_message: Dict[int, str] = {}
         # indicates whether a message generation is currently running

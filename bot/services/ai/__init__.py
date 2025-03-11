@@ -1,5 +1,6 @@
 from . import models, prompts
-from .QueueProcessor import QueueProcessor
-from .ResponseGenerator import ResponseGenerator
+from .llm_inference import LLMConfig, LLMInference
+from .queue_processor import QueueProcessor
+from .response_generator import ChatSimulator
 
-__all__ = ["QueueProcessor", "ResponseGenerator", "prompts", "models"]
+__all__ = ["QueueProcessor", "ChatSimulator", "prompts", "models", "LLMInference", "LLMConfig"]
