@@ -1,10 +1,3 @@
-"""
-
-TODO:
-- Add docstrings
-- Different response prompt if last message was from bot
-"""
-
 from logging import Logger
 
 from openai import AsyncOpenAI
@@ -30,17 +23,12 @@ class ResponseGenerator:
         Raises:
             Exception: If the response generation fails.
         """
-        # if not self._should_respond(chat_ref):
-        #     return None
 
         response: ChatSimulationReponse | None = await self.generate_response_based_on_simulation(
             chat_ref, proactive=proactive
         )
         if response is None:
             return None
-        # self.logger.debug(
-        #     f"Response: {'\n'.join([f'{msg.sender}: {msg.message}' for msg in response.messages])}"
-        # )
 
         if response.messages[0].sender == chat_ref.bot:
             self.logger.debug(f"Bot: {response.messages[0].message}")
