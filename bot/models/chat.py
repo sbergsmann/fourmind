@@ -1,5 +1,6 @@
 """Chat and message models for the bot."""
 
+import random
 from datetime import datetime as DateTime
 from typing import Any, Dict, List
 
@@ -43,7 +44,7 @@ class RichChatMessage(ChatMessage):
     """Rich chat message format for enriched messages after analysis."""
 
     # enriched data
-    receiver: str
+    receivers: List[str]
     factual_information: str
     self_revelation: str
     relationship: str
@@ -63,21 +64,24 @@ class RichChatMessage(ChatMessage):
             time=self.format_time(),
             sender=self.sender,
             message=self.message,
-            receivers=self.receiver if self.receiver else "Unknown",
+            receivers=self.receivers if self.receivers else "Unknown",
             factual_information=self.factual_information,
             self_revelation=self.self_revelation,
             appeal=self.appeal,
         )
 
-    @classmethod
-    def from_base(cls, base: ChatMessage, analysis: Any) -> "RichChatMessage":
-        """"""
-        return cls(
+    @staticmethod
+    def from_base(base: ChatMessage, analysis: Any, chat_ref: "Chat") -> "RichChatMessage":
+        referred_messages: List[ChatMessage | RichChatMessage | None] = [
+            chat_ref.get_message(id) for id in analysis.referring_message_ids
+        ]
+        receivers: List[str] = list(set([msg.sender for msg in referred_messages if msg is not None]))
+        return RichChatMessage(
             id=base.id,
             message=base.message,
             time=base.time,
             sender=analysis.sender,
-            receiver=analysis.receiver,
+            receivers=receivers,
             factual_information=analysis.factual_information,
             self_revelation=analysis.self_revelation,
             relationship=analysis.relationship,
@@ -89,8 +93,7 @@ class Chat(BaseModel):
     id: int
     start_time: DateTime = Field(default_factory=DateTime.now)
     last_message_time: DateTime = Field(default_factory=DateTime.now)
-    player1: str
-    player2: str
+    humans: List[str]
     bot: str
     language: str
     messages: Dict[int, ChatMessage | RichChatMessage] = Field(default_factory=dict)
@@ -128,19 +131,14 @@ class Chat(BaseModel):
         header: str = "[#Id] Sender: Message"
         return f"{start_time}\n{header}\n{messages}"
 
-    def format_participants(self) -> str:
-        return f"{self.player1}, {self.player2}, {self.bot}"  # TODO perhaps shuffle the order
-
     def _update_last_message_time(self, time: DateTime) -> None:
         self.last_message_time = time
 
     @property
-    def humans(self):
-        return [self.player1, self.player2]
-
-    @property
-    def participants(self):
-        return [self.player1, self.player2, self.bot]
+    def participants(self) -> List[str]:
+        shuffled_participants: List[str] = [*self.humans, self.bot]
+        random.shuffle(shuffled_participants)
+        return shuffled_participants
 
     @property
     def duration(self):
@@ -161,7 +159,7 @@ if __name__ == "__main__":
     from typing import List
 
     # Example Usage
-    chat: Chat = Chat(id=1, player1="Alice", player2="Bob", bot="AI", language="en")
+    chat: Chat = Chat(id=1, humans=["Alice", "Bob"], bot="AI", language="en")
     messages: List[ChatMessage | RichChatMessage] = [
         ChatMessage(id=1, sender="Alice", message="Hello", time=chat.start_time + TimeDelta(seconds=1)),
         ChatMessage(
@@ -173,7 +171,7 @@ if __name__ == "__main__":
             sender="Alice",
             message="I'm good, thanks! How about you?",
             time=chat.start_time + TimeDelta(seconds=5.8),
-            receiver="Bob",
+            receivers=["Bob"],
             factual_information="Alice is good",
             self_revelation="Alice is polite",
             relationship="Friendly",
@@ -184,7 +182,7 @@ if __name__ == "__main__":
             sender="Bob",
             message="I'm doing well, thanks for asking!",
             time=chat.start_time + TimeDelta(seconds=10.2),
-            receiver="Alice",
+            receivers=["Alice"],
             factual_information="Bob is well",
             self_revelation="Bob is polite",
             relationship="Friendly",

@@ -6,7 +6,7 @@ import signal
 from datetime import datetime as DateTime
 from datetime import timedelta as TimeDelta
 from logging import Logger
-from typing import Any, Dict, override
+from typing import Any, Dict, List, override
 
 from openai import AsyncOpenAI
 from TuringBotClient import TuringBotClient  # type: ignore
@@ -51,14 +51,14 @@ class FourMind(TuringBotClient):
     # Override Methods (5)
 
     @override
-    async def async_start_game(self, game_id: int, bot: str, pl1: str, pl2: str, language: str) -> bool:  # type: ignore
+    async def async_start_game(self, game_id: int, bot: str, players_list: List[str], language: str) -> bool:  # type: ignore
         """Override method to implement game start logic."""
-        chat: Chat = Chat(id=game_id, player1=pl1, player2=pl2, bot=bot, language=language)
+        chat: Chat = Chat(id=game_id, humans=players_list, bot=bot, language=language)
         self.chats.add(chat)
         self.queues.add_queue(game_id)
         self.is_message_generating[game_id] = 0
 
-        self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
+        # self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
         return True
 
     @override
@@ -189,7 +189,7 @@ class FourMind(TuringBotClient):
         split_message = message.split(", ")
         if len(split_message) == 1 or random.random() < 0.5:
             return message
-        elif len(split_message) > 1:
+        elif len(split_message) > 1 and random.random() < 0.5:
             self.followup_message[game_id] = split_message[1]
             return split_message[0]
         return message.split(", ")[0].split(". ")[0]

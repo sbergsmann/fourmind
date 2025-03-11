@@ -9,9 +9,10 @@ from bot.services.ai import prompts
 
 class FourSidesAnalysis(BaseModel):
     sender: str = Field(description=prompts.FourSides.sender)
-    receiver: str = Field(description=prompts.FourSides.receiver)
     factual_information: str = Field(description=prompts.FourSides.factual)
     self_revelation: str = Field(description=prompts.FourSides.self_relevation)
+    referring_message_ids: List[int] = Field(description=prompts.FourSides.referring_message_ids)
+    # receivers: List[str] = Field(description=prompts.FourSides.receivers)
     relationship: str = Field(description=prompts.FourSides.relationship)
     appeal: str = Field(description=prompts.FourSides.appeal)
 

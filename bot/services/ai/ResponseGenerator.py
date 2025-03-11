@@ -1,10 +1,3 @@
-"""
-
-TODO:
-- Add docstrings
-- Different response prompt if last message was from bot
-"""
-
 from logging import Logger
 
 from openai import AsyncOpenAI
@@ -25,28 +18,17 @@ class ResponseGenerator:
         self.client: AsyncOpenAI = client
 
     async def generate_response_async(self, chat_ref: Chat, proactive: bool = False) -> str | None:
-        """Generate a response based on the given chat history.
-
-        Raises:
-            Exception: If the response generation fails.
-        """
-        # if not self._should_respond(chat_ref):
-        #     return None
-
         response: ChatSimulationReponse | None = await self.generate_response_based_on_simulation(
             chat_ref, proactive=proactive
         )
         if response is None:
             return None
-        # self.logger.debug(
-        #     f"Response: {'\n'.join([f'{msg.sender}: {msg.message}' for msg in response.messages])}"
-        # )
 
         if response.messages[0].sender == chat_ref.bot:
             self.logger.debug(f"Bot: {response.messages[0].message}")
             return response.messages[0].message
         else:
-            self.logger.debug("User message")
+            self.logger.debug(f"{response.messages[0].sender}: {response.messages[0].message}")
             return None
 
     async def generate_response_based_on_simulation(
@@ -63,7 +45,7 @@ class ResponseGenerator:
                         "role": "system",
                         "content": prompts.Simulation.system.format(
                             game_description=prompts.General.game,
-                            characteristics=prompts.General.behavior,
+                            behavior=prompts.General.behavior,
                             target_user=chat.humans[0],
                             blamed_user=chat.humans[1],
                             ai_user=chat.bot,

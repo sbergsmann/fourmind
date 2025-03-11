@@ -60,9 +60,9 @@ class QueueProcessor:
         self.logger.info(f"{str(chat_ref)} Queue up and running.")
 
         while self.running_flags[id]:
-            self.logger.debug(f"Queue for chat {str(chat_ref)} is running.")
             # get
             message_id: int = await self.queues[id].get()
+            self.logger.debug(f"Processing message with ID {message_id}")
 
             message: ChatMessage | RichChatMessage | None = chat_ref.get_message(message_id)
             if message is None:
@@ -78,7 +78,6 @@ class QueueProcessor:
             # set
             if rich_chat_message is not None:
                 chat_ref.add_message(rich_chat_message)
-            self.queues[id].task_done()
 
         self.logger.info(f"Queue for chat {str(chat_ref)} has been stopped.")
 
@@ -103,7 +102,7 @@ class QueueProcessor:
                     {
                         "role": "user",
                         "content": prompts.FourSides.instruction.format(
-                            participants=chat_ref.format_participants(),
+                            participants=", ".join(chat_ref.participants),
                             chat_history=chat_ref.get_formatted_chat_history(stop_id=message.id),
                             message=str(message),
                         ),
@@ -121,7 +120,7 @@ class QueueProcessor:
             self.logger.warning(f"Failed to parse response: {response_message.refusal}")
             return None
 
-        self.logger.debug("Succesfully parsed response")
+        self.logger.debug("Successfully parsed response")
         analysis_response: FourSidesAnalysis = response_message.parsed
-        rich_chat_message: RichChatMessage = RichChatMessage.from_base(message, analysis_response)
+        rich_chat_message: RichChatMessage = RichChatMessage.from_base(message, analysis_response, chat_ref)
         return rich_chat_message
