@@ -1,0 +1,78 @@
+@startuml
+
+actor Backend as backend
+control TuringGame as tg
+participant Bot as bot
+queue MessageQueue as mq
+collections ChatStorage as cs
+entity "LLM Server" as llm
+
+activate tg
+
+== Spin Up Phase ==
+backend -> bot : Startup
+activate bot
+bot -> tg: Connect
+bot -> cs: Instantiate chat storage
+activate cs
+bot -> mq: Instantiate message queue
+activate mq
+
+== Main Phase ==
+tg -> bot: Start new chat
+bot -> cs ++ #MediumOrchid: Create chat storage
+bot -> mq ++ #SkyBlue: Create  message queue
+
+tg -> bot ++ #Lime: New message
+
+group FourMind
+
+bot -> cs: Retrieve Chat
+bot -> cs: Store **ChatMessage**
+bot -> mq: Add message to queue
+hnote over mq #SkyBlue
+    Message processing is async
+end hnote
+mq -> mq ++ #Blue: Get message\nfrom queue
+mq -> llm ++ #Orange: Four-Sides Model\n Analysis
+llm -> mq: Return\n**RichChatMessage**
+deactivate llm
+
+mq -> cs: Store\n**RichChatMessage**
+deactivate mq
+
+bot -> bot ++ #LimeGreen: Generate response
+note left of llm #Orange
+    Chat simulation uses the currently
+    available chat history with or
+    without **RichChatMessages**
+end note
+
+bot -> llm ++ #Orange: Simulate chat
+
+llm -> bot: response
+
+deactivate llm
+
+bot -> bot: Generic message splitting
+bot -> bot: Calculate \nremaining response time
+bot -> bot: Wait \nremaining response time
+
+bot -> tg: Send response
+end
+deactivate bot
+
+tg -> bot: End Game
+bot -> cs: Persist chat history
+bot -> cs!!: Delete chat storage
+bot -> mq!!: Delete message queue
+deactivate bot
+
+
+== Tear Down Phase ==
+backend -> bot: Shutdown
+bot -> cs!!: Close all chats
+bot -> mq!!: Kill all chat queues
+bot -> bot!!: Shutdown
+
+@enduml
