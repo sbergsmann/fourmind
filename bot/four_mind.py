@@ -17,13 +17,15 @@ from bot.models.storage import ChatStorage
 from bot.services.ai import ChatSimulator, QueueProcessor
 from bot.services.ai.llm_inference import LLMConfig
 from bot.services.ai.response_generator import IResponseGenerator
+from bot.services.simulation.message_time_simulator import MessageTimeSimulator
 from bot.services.storage import StorageHandler
 
 
 class FourMind(TuringBotClient):
     DEFAULT_LANGUAGE: str = "en"
     BOT_NAME: str = "FourMind"
-    COGNITIVE_LOAD_OFFSET: float = 1.5
+    # according to https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.00727/full
+    RESPONSE_TIME_DELAY: float = 1.5
 
     logger: Logger = LoggerFactory.setup_logger(__name__)
     __event_loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -59,6 +61,7 @@ class FourMind(TuringBotClient):
                 temperature=0.70,
             ),
         )
+        self.mts = MessageTimeSimulator()
         self.is_message_generating: Dict[int, int] = {}
         self.followup_message: Dict[int, str] = {}
         # indicates whether a message generation is currently running
@@ -114,7 +117,10 @@ class FourMind(TuringBotClient):
             return None
 
         response_message: str = self.cut_message(response, game_id)
-        await self.simulate_message_writing(incoming_message_start_time, response_message)
+        remaining_response_time: float = self.mts.calculate_remaining_response_time(
+            incoming_message_start_time, response_message, chat_ref
+        )
+        await asyncio.sleep(remaining_response_time)
         self.is_message_generating[game_id] = 0
         return response_message
 
@@ -172,20 +178,6 @@ class FourMind(TuringBotClient):
         self.logger.info(f"Received signal {signum}. Shutting down...")
         self.__event_loop.create_task(self._on_shutdown(True))
 
-    async def simulate_message_writing(self, start_time: DateTime, message: str) -> None:
-        """Simulate the time it takes to write a message."""
-        # random variable of how long a keystroke takes
-        random_keystroke_time: float = random.uniform(0.1, 0.2)
-        # simulate the time it takes to write the message
-        await asyncio.sleep(
-            max(
-                0,
-                random_keystroke_time * len(message)
-                - (DateTime.now() - start_time).total_seconds()
-                + self.COGNITIVE_LOAD_OFFSET,
-            )
-        )
-
     def cut_message(self, message: str, game_id: int) -> str:
         """Cut the response at the first comma."""
         split_message = message.split(", ")
@@ -209,7 +201,10 @@ class FourMind(TuringBotClient):
             ):
                 self.is_message_generating[game_id] = 1
                 start_message: str = "hi"
-                await self.simulate_message_writing(chat.start_time, start_message)
+                remaining_response_time: float = self.mts.calculate_remaining_response_time(
+                    chat.start_time, start_message, chat
+                )
+                await asyncio.sleep(remaining_response_time)
                 await self.send_game_message(game_id, start_message)  # type: ignore
                 self.is_message_generating[game_id] = 0
 
