@@ -1,7 +1,0 @@
-services:
-  fourmind:
-    build: .
-    ports:
-      - "443:443"
-    env_file:
-      - .env

@@ -10,7 +10,6 @@ is_dotenv_loaded: bool = load_dotenv()
 from bot import FourMind  # noqa E402
 from bot.common import LoggerFactory  # noqa E402
 
-
 if __name__ == "__main__":
     logger: Logger = LoggerFactory.setup_logger(__name__)
     logger.info(f"Starting FourMind bot with log level {LoggerFactory.log_level_str}")
