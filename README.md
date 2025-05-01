@@ -1,4 +1,4 @@
-# FourMind
+# 🤖 FourMind
 
 TODO reference paper and abstract
 
@@ -50,6 +50,6 @@ This project requires a `.env` file for configuration.
 2. Update the `.env` file with your actual secrets and credentials.
 3. Ensure `.env` is **never committed to Git** (it is already included in `.gitignore`).
 
-The `.env` file is used by both **Docker Compose** and **FastAPI** for configuration.
+The `.env` file is used by both **Docker Compose** and **FourMind** for configuration.
 
 ---
