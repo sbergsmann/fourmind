@@ -1,24 +1,27 @@
-"""This module contains the FourMind Bot, which is a subclass of TuringBotClient."""
+"""This module implements the FourMind Bot, which is a subclass of TuringBotClient."""
 
 import asyncio
+import platform
 import random
 import signal
+import time
 from datetime import datetime as DateTime
 from datetime import timedelta as TimeDelta
 from logging import Logger
 from typing import Any, Dict, List, override
 
+import websockets
 from openai import AsyncOpenAI
-from TuringBotClient import TuringBotClient  # type: ignore
+from TuringBotClient import APIKeyMessage, TuringBotClient  # type: ignore
 
-from bot.common import LoggerFactory
-from bot.models.chat import Chat, ChatMessage
-from bot.models.storage import ChatStorage
-from bot.services.ai import ChatSimulator, QueueProcessor
-from bot.services.ai.llm_inference import LLMConfig
-from bot.services.ai.response_generator import IResponseGenerator
-from bot.services.simulation.message_time_simulator import MessageTimeSimulator
-from bot.services.storage import StorageHandler
+from fourmind.bot.common.logger_factory import LoggerFactory
+from fourmind.bot.models.chat import Chat, ChatMessage, GameID
+from fourmind.bot.models.storage import ChatStorage
+from fourmind.bot.services.analysis.four_sides import FourSidesQueue
+from fourmind.bot.services.llm_inference import LLMConfig
+from fourmind.bot.services.response_generation.lookahead import Lookahead
+from fourmind.bot.services.response_generation.message_time_simulator import MessageTimeSimulator
+from fourmind.bot.services.storage.storage_handler import StorageHandler
 
 
 class FourMind(TuringBotClient):
@@ -46,7 +49,7 @@ class FourMind(TuringBotClient):
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
-        self.queues: QueueProcessor = QueueProcessor(
+        self.queues: FourSidesQueue = FourSidesQueue(
             storage=self.__storage,
             client=self.oai_client,
             llmconfig=LLMConfig(
@@ -54,7 +57,7 @@ class FourMind(TuringBotClient):
                 temperature=0.45,
             ),
         )
-        self.response_generator: IResponseGenerator = ChatSimulator(
+        self.response_generator: Lookahead = Lookahead(
             client=self.oai_client,
             llmconfig=LLMConfig(
                 base_model="gpt-4o-mini-2024-07-18",
@@ -62,19 +65,25 @@ class FourMind(TuringBotClient):
             ),
         )
         self.mts = MessageTimeSimulator()
-        self.is_message_generating: Dict[int, int] = {}
-        self.followup_message: Dict[int, str] = {}
+        self.is_response_generation_running: Dict[GameID, int] = {}
+        self.followup_message: Dict[GameID, str] = {}
         # indicates whether a message generation is currently running
 
     # Override Methods (5)
 
     @override
-    async def async_start_game(self, game_id: int, bot: str, players_list: List[str], language: str) -> bool:  # type: ignore
+    async def async_start_game(
+        self,
+        game_id: GameID,
+        bot: str,
+        players_list: List[str],
+        language: str,
+    ) -> bool:
         """Override method to implement game start logic."""
         chat: Chat = Chat(id=game_id, humans=players_list, bot=bot, language=language)
         self.chats.add(chat)
         self.queues.add_queue(game_id)
-        self.is_message_generating[game_id] = 0
+        self.is_response_generation_running[game_id] = 0
 
         # self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
         return True
@@ -82,10 +91,10 @@ class FourMind(TuringBotClient):
     @override
     async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:  # type: ignore
         incoming_message_start_time: DateTime = DateTime.now()
-        if self.is_message_generating.get(game_id) == 1:
+        if self.is_response_generation_running.get(game_id) == 1:
             self.logger.info(f"Message generation already in progress for {self.anonymize_id(game_id)}")
             return None
-        self.is_message_generating[game_id] = 1
+        self.is_response_generation_running[game_id] = 1
 
         chat_ref: Chat | None = self.chats.get(game_id)
         if chat_ref is None:
@@ -110,10 +119,10 @@ class FourMind(TuringBotClient):
             response = self.followup_message[game_id]
             self.followup_message.pop(game_id)
         else:
-            response: str | None = await self.response_generator.generate_response_async(chat_ref)
+            response: str | None = await self.response_generator.simulate_chat_async(chat_ref)
 
         if response is None:
-            self.is_message_generating[game_id] = 0
+            self.is_response_generation_running[game_id] = 0
             return None
 
         response_message: str = self.cut_message(response, game_id)
@@ -121,7 +130,7 @@ class FourMind(TuringBotClient):
             incoming_message_start_time, response_message, chat_ref
         )
         await asyncio.sleep(remaining_response_time)
-        self.is_message_generating[game_id] = 0
+        self.is_response_generation_running[game_id] = 0
         return response_message
 
     @override
@@ -129,7 +138,7 @@ class FourMind(TuringBotClient):
         """Override method to implement game end logic"""
         self.chats.remove(game_id)
         await self.queues.dequeue_and_cancel_async(game_id)
-        self.is_message_generating.pop(game_id, None)
+        self.is_response_generation_running.pop(game_id, None)
 
     @override
     def start(self) -> None:
@@ -149,21 +158,85 @@ class FourMind(TuringBotClient):
         """Functionless wrapper around the on_shutdown method."""
         pass
 
-    # Non-Override Methods (2)
+    @override
+    async def connect(self) -> None:
+        """Connect to the TuringGame API and start the main loop.
+        This method will handle the connection to the API and the main loop for processing messages.
+        """
+        if platform.system() == "Windows":
+            signal.signal(signal.SIGINT, self.win_shutdown_handler)
+            signal.signal(signal.SIGTERM, self.win_shutdown_handler)
+        else:
+            # Use event loop signal handlers on Unix-like systems
+            self.__event_loop.add_signal_handler(signal.SIGINT, self._on_shutdown_wrapper)
+            self.__event_loop.add_signal_handler(signal.SIGTERM, self._on_shutdown_wrapper)
+
+        self.logger.info("Starting to connect now")
+
+        while not self._shutdown_flag:
+            try:
+                async with websockets.connect(self.api_endpoint) as _websocket:
+                    self.logger.info("connected, checking api key...")
+                    if hasattr(self, "accuse_ready"):
+                        self.logger.debug(f"accuse_ready: {self.accuse_ready}")
+                        await _websocket.send(
+                            APIKeyMessage(
+                                api_key=self.api_key,
+                                bot_name=self.bot_name,
+                                languages=self.languages,
+                                accuse_ready=self.accuse_ready,
+                            ).model_dump_json()
+                        )
+                    else:
+                        await _websocket.send(
+                            APIKeyMessage(
+                                api_key=self.api_key, bot_name=self.bot_name, languages=self.languages
+                            ).model_dump_json()
+                        )
+                    self._websocket = _websocket
+                    response = await self._receive()
+                    if response["type"] == "info":
+                        self.logger.debug(f"Server Response: {response['message']}")
+                    await self._main_loop()
+
+            except websockets.exceptions.ConnectionClosedOK as e:
+                self.logger.debug(f"Connection closed with code: {e.code}, reason: {e.reason}")
+                break
+
+            except websockets.exceptions.ConnectionClosedError as e:
+                self.logger.debug(f"Connection closed with code: {e.code}")
+                if e.code == 1008:
+                    if e.reason == "invalid api key request":
+                        self.logger.error("Your API key was rejected. Please check your API Key")
+                    elif e.reason == "invalid language codes":
+                        self.logger.error(
+                            "Your language codes are not in the correct format or not accepted as allowed languages"  # noqa: E501
+                        )
+                    await self._on_shutdown(send_shutdown=False)
+                else:
+                    self.logger.debug("Game currently not reachable, waiting to reconnect...")
+                    # time.sleep(5)
+                    continue
+
+            except ConnectionRefusedError:
+                self.logger.debug("Connection refused, retry...")
+                time.sleep(5)
+                continue
+            except websockets.exceptions.InvalidStatus:
+                self.logger.debug("Connection refused, retry...")
+                time.sleep(5)
+                continue
+            except Exception as e:
+                self.logger.exception(f"Unexpected error: {e}")
+                time.sleep(5)
+                continue
+
+    # Non-Override Methods (1)
 
     async def _on_shutdown(self, send_shutdown: bool) -> None:
         """Override method to implement shutdown logic"""
         await super()._on_shutdown(send_shutdown)
         await self.oai_client.close()
-
-    async def connect(self) -> None:
-        """Extension wrapper around the connect method.
-
-        Windows does not support AbstractEventLoop.add_signal_handler.
-        """
-        signal.signal(signal.SIGINT, self.win_shutdown_handler)
-        signal.signal(signal.SIGTERM, self.win_shutdown_handler)
-        return await super().connect()
 
     # New Methods (3)
 
@@ -197,35 +270,59 @@ class FourMind(TuringBotClient):
             if (
                 chat.last_message_id == 0
                 and random.random() < 0.5
-                and self.is_message_generating[game_id] == 0
+                and self.is_response_generation_running[game_id] == 0
             ):
-                self.is_message_generating[game_id] = 1
+                self.is_response_generation_running[game_id] = 1
                 start_message: str = "hi"
                 remaining_response_time: float = self.mts.calculate_remaining_response_time(
                     chat.start_time, start_message, chat
                 )
                 await asyncio.sleep(remaining_response_time)
                 await self.send_game_message(game_id, start_message)  # type: ignore
-                self.is_message_generating[game_id] = 0
+                self.is_response_generation_running[game_id] = 0
 
             # if too much time has passed since the last message, send a proactive message
             elif (
                 DateTime.now() - chat.last_message_time > TimeDelta(seconds=60)
                 and random.random() < 0.7
-                and self.is_message_generating[game_id] == 0
+                and self.is_response_generation_running[game_id] == 0
             ):
-                self.is_message_generating[game_id] = 1
+                self.is_response_generation_running[game_id] = 1
                 self.logger.info(f"Proactive loop for {self.anonymize_id(game_id)}")
-                response: str | None = await self.response_generator.generate_response_async(
-                    chat, proactive=True
-                )
+                response: str | None = await self.response_generator.simulate_chat_async(chat, proactive=True)
                 if response is not None:
                     self.logger.debug(f"Proactive message: {response}")
                     await self.send_game_message(game_id, response)
-                self.is_message_generating[game_id] = 0
+                self.is_response_generation_running[game_id] = 0
                 await asyncio.sleep(10)
 
             await asyncio.sleep(4)
             chat: Chat | None = self.chats.get(game_id)
 
         self.logger.info(f"Proactive loop ended for {self.anonymize_id(game_id)}")
+
+
+def main() -> None:
+    """Main function to run the bot."""
+    import os
+
+    logger: Logger = LoggerFactory.setup_logger(__name__)
+    logger.info(f"Starting FourMind bot with log level {LoggerFactory.log_level_str}")
+
+    turinggame_api_key: str | None = os.getenv("TURINGGAME_API_KEY")
+    if turinggame_api_key is None:
+        logger.critical("TURINGGAME_API_KEY environment variable is not set")
+        return None
+
+    openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
+    if openai_api_key is None:
+        logger.critical("OPENAI_API_KEY environment variable is not set")
+        return None
+
+    bot: FourMind = FourMind(turinggame_api_key=turinggame_api_key, openai_api_key=openai_api_key)
+    logger.info("FourMind bot created")
+    bot.start()
+
+
+if __name__ == "__main__":
+    main()

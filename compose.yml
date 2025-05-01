@@ -1,0 +1,12 @@
+services:
+
+  fourmind:
+    image: fourmind:${FOURMIND_VERSION:-latest}
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: fourmind
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL}
+      TURINGGAME_API_KEY: ${TURINGGAME_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}

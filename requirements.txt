@@ -1,4 +1,0 @@
-turing-bot-client==0.0.2.post2
-openai==1.63.0
-websockets==14.2
-python-dotenv==1.0.1

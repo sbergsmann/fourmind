@@ -1,8 +1,15 @@
 import random
 from datetime import datetime as DateTime
+from datetime import timedelta
 from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
+
+__all__ = ["Chat", "ChatMessage", "RichChatMessage", "GameID", "Message"]
+
+
+type GameID = int
+type Message = ChatMessage | RichChatMessage
 
 
 class ChatMessage(BaseModel):
@@ -88,7 +95,7 @@ class RichChatMessage(ChatMessage):
 
 
 class Chat(BaseModel):
-    id: int
+    id: GameID
     start_time: DateTime = Field(default_factory=DateTime.now)
     last_message_time: DateTime = Field(default_factory=DateTime.now)
     humans: List[str]
@@ -98,7 +105,7 @@ class Chat(BaseModel):
 
     def add_message(self, message: ChatMessage | RichChatMessage) -> None:
         self.messages[message.id] = message
-        self._update_last_message_time(message.time)
+        self.last_message_time = message.time
 
     def get_message(self, id: int) -> ChatMessage | RichChatMessage | None:
         return self.messages.get(id)
@@ -107,46 +114,51 @@ class Chat(BaseModel):
         min_id: int = max(0, self.last_message_id - n)
         return [message for id, message in self.messages.items().__reversed__() if id > min_id]
 
-    def get_formatted_chat_history(self, pov: str | None = None, stop_id: int | None = None) -> str:
+    def get_formatted_chat_history(self, stop_id: int | None = None) -> str:
+        """Get the formatted chat history.
+
+        :param stop_id: on which message shall be stopped, defaults to None
+        :return: a formatted string representation of the chat history.
+        """
         if stop_id is None:
             stop_id = self.last_message_id
 
-        if pov is None:
-            messages: str = "\n".join(
-                [str(message) for id, message in self.messages.items() if id <= stop_id]
-            )
-        else:
-            # pov = chat.bot
-            messages: str = "\n".join(
-                [
-                    str(message).replace(pov, f"{pov} (You)")
-                    for id, message in self.messages.items()
-                    if id <= stop_id
-                ]
-            )
-
+        messages: str = "\n".join([str(message) for id, message in self.messages.items() if id <= stop_id])
         start_time: str = "Start Time: " + self.start_time.strftime("%Y-%m-%d %H:%M:%S")
         header: str = "[#Id] Sender: Message"
         return f"{start_time}\n{header}\n{messages}"
 
-    def _update_last_message_time(self, time: DateTime) -> None:
-        self.last_message_time = time
-
     @property
     def participants(self) -> List[str]:
+        """Get a shuffled list of participants.
+
+        :return: A list of participants in random order.
+        """
         shuffled_participants: List[str] = [*self.humans, self.bot]
         random.shuffle(shuffled_participants)
         return shuffled_participants
 
     @property
-    def duration(self):
+    def duration(self) -> timedelta:
+        """Get the duration of the chat.
+
+        :return: a timedelta object representing the duration of the chat.
+        """
         return DateTime.now() - self.start_time
 
     @property
     def last_message_id(self) -> int:
+        """Get the ID of the last message.
+
+        :return: The ID of the last message in the chat.
+        """
         return max(self.messages.keys(), default=0)
 
     def __str__(self) -> str:
+        """Get a string representation of the chat.
+
+        :return: A string representation of the chat with a hidden ID.
+        """
         return "(ID {id}, #{nr_messages}, {duration}s)".format(
             id="..." + str(self.id)[-4:], nr_messages=len(self.messages), duration=self.duration.seconds
         )

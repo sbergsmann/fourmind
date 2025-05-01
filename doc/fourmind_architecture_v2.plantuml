@@ -1,0 +1,49 @@
+@startuml .
+
+title Fourmind
+
+participant Bot as bot
+participant "Background Job" as bgj
+queue MessageQueue as mq
+collections Storage as cs
+entity "LLM Server" as llm
+
+[-> bot ++ #LimeGreen: Incoming chat message
+
+bot -> cs: Store raw message
+bot -> mq: Add message id to queue
+
+bot -> llm ++ #Orange: Perform Simulation Lookahead
+return Chat simulation
+
+alt First simulated message sender != bot
+
+[<-- bot: None
+
+else else
+
+bot -> bot: Message splitting
+bot -> bot: Calculate \nremaining response time
+[<-- bot: response message
+deactivate
+
+end
+...
+
+group Four-Sides Analysis
+bgj <- mq ++ #Lime: Get message id\nfrom queue
+
+bgj -> cs: Get raw message
+bgj -> llm ++ #Orange: Perform Four-Sides Analysis
+...
+return Enhanced message
+deactivate llm
+
+bgj -> cs: Store Enhanced message inplace
+deactivate mq
+deactivate bgj
+
+end
+
+
+@enduml

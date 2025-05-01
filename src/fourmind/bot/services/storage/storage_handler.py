@@ -8,9 +8,9 @@ This class shall be the only interface to interact with the storage of chats in 
 import os
 from logging import Logger
 
-from bot.common import LoggerFactory
-from bot.models.chat import Chat
-from bot.models.storage import ChatStorage
+from fourmind.bot.common.logger_factory import LoggerFactory
+from fourmind.bot.models.chat import Chat
+from fourmind.bot.models.storage import ChatStorage
 
 
 class StorageHandler:

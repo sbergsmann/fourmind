@@ -1,9 +1,12 @@
 import random
 from datetime import datetime as DateTime
 from logging import Logger
+from typing import List
 
-from bot.common.logger_factory import LoggerFactory
-from bot.models.chat import Chat
+from fourmind.bot.common.logger_factory import LoggerFactory
+from fourmind.bot.models.chat import Chat, Message
+
+__all__ = ["MessageTimeSimulator"]
 
 
 class MessageTimeSimulator:
@@ -15,8 +18,7 @@ class MessageTimeSimulator:
 
     logger: Logger = LoggerFactory.setup_logger(__name__)
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self) -> None: ...
 
     def get_message_writing_time(self, message: str) -> float:
         """Estimate the time it takes to write a message.
@@ -44,16 +46,18 @@ class MessageTimeSimulator:
         Returns:
             float: The estimated cognitive response time.
         """
-        c_e = len(previous_message)
-        c_p = len(message)
+        c_e = len(previous_message.split())
+        c_p = len(message.split())
 
         crt: float = 0.15 * c_e + 0.36 * c_p + 0.0004 * c_e * c_p + 9.2
 
-        return crt
+        return crt / 3.0
 
     def calculate_remaining_response_time(self, start_time: DateTime, message: str, chat_ref: Chat) -> float:
         """Simulate the total response time for reading and writing a message."""
-        actor_message: str = chat_ref.get_last_n_messages(1)[0].message
+        last_n_messages: List[Message] = chat_ref.get_last_n_messages(1)
+
+        actor_message: str = last_n_messages[0].message if last_n_messages else ""
         elapsed_time: float = (DateTime.now() - start_time).total_seconds()
         total_response_time: float = max(
             0,

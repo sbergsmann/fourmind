@@ -1,45 +1,39 @@
 [project]
 name = "fourmind"
 version = "1.0.0"
-description = "A objective-driven, simulation-based LLM chatbot designed for the Turing Game. It uses the Four-Sides model to make informed simulations of chats to achieve human-like behavior."
-authors = [
-    {name = "sbergsmann",email = "sbergsmann@users.noreply.github.com"}
-]
+description = "TODO add paper abstract"
 readme = "README.md"
-requires-python = "==3.12.7"
+requires-python = "==3.12.*"
 dependencies = [
-    "turing-bot-client @ git+https://github.com/SCCH-Nessler/TuringBotClient.git",
-    "openai (>=1.63.0,<2.0.0)",
-    "websockets (>=14.2,<15.0)",
-    "python-dotenv (>=1.0.1,<2.0.0)"
+    "openai>=1.76.2",
+    "turing-bot-client",
+    "websockets>=15.0.1",
 ]
 
+[tool.uv.sources]
+turing-bot-client = { git = "https://github.com/SCCH-Nessler/TuringBotClient.git" }
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.10.1",
+    "numpy>=2.2.5",
+    "pre-commit>=4.2.0",
+    "python-dotenv>=1.1.0",
+    "ruff>=0.11.7",
+]
+
+[project.scripts]
+fourmind = "fourmind.bot.client:main"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.9.6"
-ipykernel = "^6.29.5"
-ipywidgets = "^8.1.5"
-numpy = "^2.2.3"
-matplotlib = "^3.10.1"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
-indent-width = 4
 line-length = 110
 target-version = "py312"
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
-ignore = []
-fixable = ["ALL"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+select = ["E", "F", "I"]
+extend-select = ["I"]
