@@ -61,6 +61,7 @@ class RichChatMessage(ChatMessage):
 - Receivers: {receivers}
 - Factual Info: {factual_information}
 - Self-Revelation: {self_revelation}
+- Relationship: {relationship}
 - Appeal: {appeal}"""
 
     def __str__(self) -> str:
@@ -72,6 +73,7 @@ class RichChatMessage(ChatMessage):
             receivers=self.receivers if self.receivers else "Unknown",
             factual_information=self.factual_information,
             self_revelation=self.self_revelation,
+            relationship=self.relationship,
             appeal=self.appeal,
         )
 
@@ -101,16 +103,27 @@ class Chat(BaseModel):
     humans: List[str]
     bot: str
     language: str
-    messages: Dict[int, ChatMessage | RichChatMessage] = Field(default_factory=dict)
+    messages: Dict[int, Message] = Field(default_factory=dict)
 
-    def add_message(self, message: ChatMessage | RichChatMessage) -> None:
+    __str_template__: str = """\
+# Chat History
+Chat Start Time: {start_time}
+
+Format:
+[#Id] (Time since Start) Sender: Message
+- (optional Four-Sides Analysis)
+----------------------------------------
+{messages}
+"""
+
+    def add_message(self, message: Message) -> None:
         self.messages[message.id] = message
         self.last_message_time = message.time
 
-    def get_message(self, id: int) -> ChatMessage | RichChatMessage | None:
+    def get_message(self, id: int) -> Message | None:
         return self.messages.get(id)
 
-    def get_last_n_messages(self, n: int) -> List[ChatMessage | RichChatMessage]:
+    def get_last_n_messages(self, n: int) -> List[Message]:
         min_id: int = max(0, self.last_message_id - n)
         return [message for id, message in self.messages.items().__reversed__() if id > min_id]
 
@@ -124,9 +137,11 @@ class Chat(BaseModel):
             stop_id = self.last_message_id
 
         messages: str = "\n".join([str(message) for id, message in self.messages.items() if id <= stop_id])
-        start_time: str = "Start Time: " + self.start_time.strftime("%Y-%m-%d %H:%M:%S")
-        header: str = "[#Id] Sender: Message"
-        return f"{start_time}\n{header}\n{messages}"
+        start_time: str = self.start_time.strftime("%Y-%m-%d %H:%M:%S")
+        return self.__str_template__.format(
+            start_time=start_time,
+            messages=messages,
+        )
 
     @property
     def participants(self) -> List[str]:
