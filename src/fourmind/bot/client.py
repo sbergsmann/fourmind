@@ -91,10 +91,6 @@ class FourMind(TuringBotClient):
     @override
     async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:  # type: ignore
         incoming_message_start_time: DateTime = DateTime.now()
-        if self.is_response_generation_running.get(game_id) == 1:
-            self.logger.info(f"Message generation already in progress for {self.anonymize_id(game_id)}")
-            return None
-        self.is_response_generation_running[game_id] = 1
 
         chat_ref: Chat | None = self.chats.get(game_id)
         if chat_ref is None:
@@ -112,6 +108,11 @@ class FourMind(TuringBotClient):
         chat_ref.add_message(chat_message)
         await self.queues.enqueue_item_async(game_id, chat_message.id)
         self.logger.info(f"{str(chat_ref)} Added message to queue")
+
+        if self.is_response_generation_running.get(game_id) == 1:
+            self.logger.info(f"Message generation already in progress for {self.anonymize_id(game_id)}")
+            return None
+        self.is_response_generation_running[game_id] = 1
 
         # response handling logic
         if self.followup_message.get(game_id) is not None:
