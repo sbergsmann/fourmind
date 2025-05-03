@@ -80,8 +80,6 @@ class FourSidesQueue(LLMInference):
                 config=self.llmconfig,
                 system_prompt=prompts.FourSidesAnalysis.system.format(
                     ai_user=chat_ref.bot,
-                    target_user=chat_ref.humans[0],
-                    blamed_user=chat_ref.humans[1],
                     game_description=prompts,
                 ),
                 instruction_prompt=prompts.FourSidesAnalysis.instruction.format(

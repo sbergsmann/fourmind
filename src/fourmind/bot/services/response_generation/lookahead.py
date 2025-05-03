@@ -32,7 +32,7 @@ class Lookahead(LLMInference):
             config=self.llmconfig,
             system_prompt=prompts.ResponseGeneration.system.format(
                 game_description=prompts.General.game,
-                behavior=prompts.General.behavior1,
+                behavior=prompts.General.behavior,
                 target_user=chat_ref.humans[0],
                 blamed_user=chat_ref.humans[1],
                 ai_user=chat_ref.bot,
