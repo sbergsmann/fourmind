@@ -117,8 +117,7 @@ class FourMind(TuringBotClient):
         # response handling logic
         if self.followup_message.get(game_id) is not None:
             self.logger.debug(f"Followup message found for {self.anonymize_id(game_id)}")
-            response = self.followup_message[game_id]
-            self.followup_message.pop(game_id)
+            response = self.followup_message.pop(game_id)
         else:
             response: str | None = await self.response_generator.simulate_chat_async(chat_ref)
 

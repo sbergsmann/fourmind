@@ -14,12 +14,12 @@ __all__ = [
 
 
 class FourSidesAnalysis(BaseModel):
-    sender: str = Field(description=prompts.FourSidesAnalysis.sender)
-    factual_information: str = Field(description=prompts.FourSidesAnalysis.factual)
-    self_revelation: str = Field(description=prompts.FourSidesAnalysis.self_relevation)
-    referring_message_ids: List[int] = Field(description=prompts.FourSidesAnalysis.referring_message_ids)
-    relationship: str = Field(description=prompts.FourSidesAnalysis.relationship)
-    appeal: str = Field(description=prompts.FourSidesAnalysis.appeal)
+    sender: str = Field(description=prompts.FourSidesAnalysisPrompts.sender)
+    factual_information: str = Field(description=prompts.FourSidesAnalysisPrompts.factual)
+    self_revelation: str = Field(description=prompts.FourSidesAnalysisPrompts.self_relevation)
+    relationship: str = Field(description=prompts.FourSidesAnalysisPrompts.relationship)
+    appeal: str = Field(description=prompts.FourSidesAnalysisPrompts.appeal)
+    receivers: List[str] = Field(description=prompts.FourSidesAnalysisPrompts.receivers)
 
 
 class ChatSimulationMessage(BaseModel):

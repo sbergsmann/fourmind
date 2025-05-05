@@ -78,11 +78,11 @@ class FourSidesQueue(LLMInference):
             analysis: FourSidesAnalysis | None = await self.ainfer(
                 client=self.client,
                 config=self.llmconfig,
-                system_prompt=prompts.FourSidesAnalysis.system.format(
+                system_prompt=prompts.FourSidesAnalysisPrompts.system.format(
                     ai_user=chat_ref.bot,
                     game_description=prompts,
                 ),
-                instruction_prompt=prompts.FourSidesAnalysis.instruction.format(
+                instruction_prompt=prompts.FourSidesAnalysisPrompts.instruction.format(
                     participants=", ".join(chat_ref.participants),
                     chat_history=chat_ref.get_formatted_chat_history(stop_id=message.id),
                     message=str(message),
@@ -93,7 +93,7 @@ class FourSidesQueue(LLMInference):
                 self.logger.error(f"Failed to analyze message with ID {message_id}")
                 continue
 
-            rich_chat_message: RichChatMessage = RichChatMessage.from_base(message, analysis, chat_ref)
+            rich_chat_message: RichChatMessage = RichChatMessage.from_base(message, analysis)
             chat_ref.add_message(rich_chat_message)
 
         self.logger.info(f"Queue for chat {str(chat_ref)} has been stopped.")
