@@ -1,9 +1,11 @@
 import random
 from datetime import datetime as DateTime
 from datetime import timedelta
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from pydantic import BaseModel, Field
+
+from fourmind.bot.models.inference import FourSidesAnalysis
 
 __all__ = ["Chat", "ChatMessage", "RichChatMessage", "GameID", "Message"]
 
@@ -78,17 +80,13 @@ class RichChatMessage(ChatMessage):
         )
 
     @staticmethod
-    def from_base(base: ChatMessage, analysis: Any, chat_ref: "Chat") -> "RichChatMessage":
-        referred_messages: List[ChatMessage | RichChatMessage | None] = [
-            chat_ref.get_message(id) for id in analysis.referring_message_ids
-        ]
-        receivers: List[str] = list(set([msg.sender for msg in referred_messages if msg is not None]))
+    def from_base(base: ChatMessage, analysis: FourSidesAnalysis) -> "RichChatMessage":
         return RichChatMessage(
             id=base.id,
             message=base.message,
             time=base.time,
             sender=analysis.sender,
-            receivers=receivers,
+            receivers=analysis.receivers,
             factual_information=analysis.factual_information,
             self_revelation=analysis.self_revelation,
             relationship=analysis.relationship,
@@ -149,9 +147,22 @@ Format:
 
         :return: A list of participants in random order.
         """
-        shuffled_participants: List[str] = [*self.humans, self.bot]
+        shuffled_participants: List[str] = list(
+            set([*self.humans, self.bot])
+        )  # bug that bot is in humans list
         random.shuffle(shuffled_participants)
         return shuffled_participants
+
+    @property
+    def human_participants(self) -> List[str]:
+        """Get the list of human participants.
+
+        This property is due to a bug in the original code where the bot was included in the humans list.
+
+        :return: A list of human participants.
+        """
+        humans: List[str] = list(set(self.humans) - {self.bot})
+        return humans
 
     @property
     def duration(self) -> timedelta:

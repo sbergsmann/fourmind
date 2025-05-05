@@ -30,18 +30,20 @@ class Lookahead(LLMInference):
         response: ChatSimulationReponse | None = await self.ainfer(
             client=self.client,
             config=self.llmconfig,
-            system_prompt=prompts.ResponseGeneration.system.format(
-                game_description=prompts.General.game,
-                behavior=prompts.General.behavior,
-                target_user=chat_ref.humans[0],
-                blamed_user=chat_ref.humans[1],
+            system_prompt=prompts.ResponseGenerationPrompts.system.format(
+                game_description=prompts.GeneralPrompts.game,
+                behavior=prompts.GeneralPrompts.behavior,
+                target_user=chat_ref.human_participants[0],
+                blamed_user=chat_ref.human_participants[1],
                 ai_user=chat_ref.bot,
             ),
-            instruction_prompt=prompts.ResponseGeneration.instruction.format(
+            instruction_prompt=prompts.ResponseGenerationPrompts.instruction.format(
                 num_simulated_messages=SimulationConfig.num_simulated_messages,
                 chat_history=chat_ref.get_formatted_chat_history(),
                 proactive_behavior=(
-                    prompts.ResponseGeneration.proactive.format(ai_user=chat_ref.bot) if proactive else ""
+                    prompts.ResponseGenerationPrompts.proactive.format(ai_user=chat_ref.bot)
+                    if proactive
+                    else ""
                 ),
             ),
             response_model=ChatSimulationReponse,
@@ -50,9 +52,7 @@ class Lookahead(LLMInference):
         if response is None:
             return None
 
+        self.logger.debug(f"{response.messages[0].sender}: {response.messages[0].message}")
         if response.messages[0].sender == chat_ref.bot:
-            self.logger.debug(f"Bot: {response.messages[0].message}")
             return response.messages[0].message
-        else:
-            self.logger.debug(f"{response.messages[0].sender}: {response.messages[0].message}")
-            return None
+        return None
