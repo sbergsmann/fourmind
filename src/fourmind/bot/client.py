@@ -39,7 +39,7 @@ class FourMind(TuringBotClient):
         openai_api_key: str,
         bot_name: str = BOT_NAME,
         language: str = DEFAULT_LANGUAGE,
-        persist_chats: bool = True,
+        persist_chats: bool = False,
     ) -> None:
         super().__init__(api_key=turinggame_api_key, bot_name=bot_name, languages=language)  # type: ignore
 
