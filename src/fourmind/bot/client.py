@@ -27,8 +27,6 @@ from fourmind.bot.services.storage.storage_handler import StorageHandler
 class FourMind(TuringBotClient):
     DEFAULT_LANGUAGE: str = "en"
     BOT_NAME: str = "FourMind"
-    # according to https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.00727/full
-    RESPONSE_TIME_DELAY: float = 1.5
 
     logger: Logger = LoggerFactory.setup_logger(__name__)
     __event_loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -65,9 +63,12 @@ class FourMind(TuringBotClient):
             ),
         )
         self.mts = MessageTimeSimulator()
-        self.is_response_generation_running: Dict[GameID, int] = {}
-        self.followup_message: Dict[GameID, str] = {}
+
         # indicates whether a message generation is currently running
+        self.is_response_generation_running: Dict[GameID, int] = {}
+
+        # temp buffer for cutted messages
+        self.followup_message: Dict[GameID, str] = {}
 
     # Override Methods (5)
 
@@ -85,7 +86,7 @@ class FourMind(TuringBotClient):
         self.queues.add_queue(game_id)
         self.is_response_generation_running[game_id] = 0
 
-        # self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
+        self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
         return True
 
     @override

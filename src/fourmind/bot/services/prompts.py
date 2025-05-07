@@ -187,5 +187,5 @@ Continue the following chat history for {num_simulated_messages} in the context 
     proactive: str = """\
 
 ## Current State
-No users have been writing into the chat for a while now.
+No users have been writing into the chat for over a minute now.
 - Be proactive and start the simulation by user {ai_user} to achieve your goal."""
