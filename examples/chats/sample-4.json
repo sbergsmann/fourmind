@@ -1,0 +1,529 @@
+{
+    "id": -166880,
+    "start_time": "2025-05-06T20:34:10.880466",
+    "last_message_time": "2025-05-06T20:39:55.602519",
+    "humans": [
+        "Blue",
+        "Red",
+        "Yellow"
+    ],
+    "bot": "Yellow",
+    "language": "en",
+    "messages": {
+        "0": {
+            "id": 0,
+            "sender": "Blue",
+            "message": "hi",
+            "time": "2025-05-06T20:34:14.076679",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is initiating a conversation with a simple greeting.",
+            "self_revelation": "The message is straightforward and typical for a casual chat, showing no deviation from common communication patterns.",
+            "relationship": "Blue is attempting to establish a friendly and open relationship with the other participants, likely seeking engagement from both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as approachable and friendly, encouraging interaction from the other participants."
+        },
+        "1": {
+            "id": 1,
+            "sender": "Red",
+            "message": "hey guys",
+            "time": "2025-05-06T20:34:19.048413",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is responding to Blue's greeting with a casual and inclusive message.",
+            "self_revelation": "The message is typical for a friendly chat, showing no significant deviation from Red's previous communication style.",
+            "relationship": "Red is framing the relationship as friendly and inclusive, addressing both Blue and Yellow equally.",
+            "appeal": "Red wants to be perceived as friendly and engaging, encouraging a group dynamic in the conversation."
+        },
+        "2": {
+            "id": 2,
+            "sender": "Blue",
+            "message": "how are you",
+            "time": "2025-05-06T20:34:27.366505",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is inquiring about the well-being of the other participants, indicating an interest in their feelings or states.",
+            "self_revelation": "The message is a standard follow-up question in casual conversation, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is trying to establish a caring and engaging relationship with both Yellow and Red, emphasizing connection and concern for their well-being.",
+            "appeal": "Blue wants to be perceived as attentive and friendly, fostering a supportive atmosphere for interaction among the participants."
+        },
+        "3": {
+            "id": 3,
+            "sender": "Yellow",
+            "message": "i'm good just chilling you?",
+            "time": "2025-05-06T20:34:33.422998",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is indicating a positive state by saying 'i'm good' and is engaging in a casual manner by stating 'just chilling'.",
+            "self_revelation": "The message is typical for casual conversation, showing no deviation from Yellow's previous communication style, suggesting a relaxed and friendly demeanor.",
+            "relationship": "Yellow is framing the relationship as friendly and open, responding positively to Blue's inquiry and inviting further conversation.",
+            "appeal": "Yellow wants to be perceived as laid-back and approachable, encouraging continued engagement from Blue and Red."
+        },
+        "4": {
+            "id": 4,
+            "sender": "Red",
+            "message": "im good",
+            "time": "2025-05-06T20:34:34.721363",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is indicating a positive state by saying 'im good', similar to Yellow's previous message.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, showing no deviation from Red's previous communication style.",
+            "relationship": "Red is maintaining a friendly and open relationship, responding positively to Blue's inquiry and aligning with Yellow's relaxed demeanor.",
+            "appeal": "Red wants to be perceived as positive and engaged, encouraging further interaction from Blue and Yellow."
+        },
+        "5": {
+            "id": 5,
+            "sender": "Blue",
+            "message": "me too thanks yellow",
+            "time": "2025-05-06T20:34:41.672232",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is indicating that they are also feeling good and expressing gratitude towards Yellow.",
+            "self_revelation": "The message is a standard response, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is reinforcing a friendly and positive relationship with Yellow, acknowledging their previous message and fostering connection.",
+            "appeal": "Blue wants to be perceived as friendly and appreciative, encouraging a sense of camaraderie among the participants."
+        },
+        "6": {
+            "id": 6,
+            "sender": "Yellow",
+            "message": "cool glad to hear that",
+            "time": "2025-05-06T20:34:48.919468",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is expressing a positive reaction to Blue's message, indicating satisfaction with the conversation.",
+            "self_revelation": "The message is casual and friendly, consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is maintaining a friendly and supportive relationship with Blue, reinforcing the positive atmosphere of the conversation.",
+            "appeal": "Yellow wants to be perceived as supportive and engaged, encouraging further interaction and connection within the group."
+        },
+        "7": {
+            "id": 7,
+            "sender": "Red",
+            "message": "Have you played many games already?",
+            "time": "2025-05-06T20:34:52.619594",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is inquiring about the gaming experiences of the other participants, suggesting an interest in shared activities.",
+            "self_revelation": "The message is consistent with Red's previous communication style, showing a desire to engage in conversation and share experiences.",
+            "relationship": "Red is attempting to create a connection with both Yellow and Blue by inviting them to share their experiences, indicating a friendly and inclusive approach.",
+            "appeal": "Red wants to be perceived as interested and engaging, fostering a sense of camaraderie and encouraging dialogue about gaming."
+        },
+        "8": {
+            "id": 8,
+            "sender": "Blue",
+            "message": "not really I am new actually",
+            "time": "2025-05-06T20:35:04.689924",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is indicating that they have not played many games and is expressing that they are new to gaming.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, showing no deviation from Blue's previous communication style, which is open and honest.",
+            "relationship": "Blue is maintaining a friendly and open relationship with both Yellow and Red, sharing personal information to foster connection.",
+            "appeal": "Blue wants to be perceived as honest and approachable, inviting support and engagement from Yellow and Red as they navigate their new experience in gaming."
+        },
+        "9": {
+            "id": 9,
+            "sender": "Yellow",
+            "message": "oh nice what games you looking to play?",
+            "time": "2025-05-06T20:35:21.281579",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is expressing interest in Blue's gaming preferences and is engaging in a conversation about games.",
+            "self_revelation": "The message is casual and friendly, consistent with Yellow's previous communication style, showing a genuine curiosity about Blue's interests.",
+            "relationship": "Yellow is framing the relationship as supportive and engaging, showing interest in Blue's experiences and encouraging further conversation.",
+            "appeal": "Yellow wants to be perceived as interested and friendly, fostering a sense of connection and encouraging Blue to share more about their gaming preferences."
+        },
+        "10": {
+            "id": 10,
+            "sender": "Red",
+            "message": "ok that will be interesting",
+            "time": "2025-05-06T20:35:32.875364",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is expressing interest in the topic of conversation regarding Blue's gaming preferences.",
+            "self_revelation": "The message is casual and typical for Red's communication style, showing no deviation from previous messages.",
+            "relationship": "Red is maintaining a friendly and inclusive relationship, indicating enthusiasm for the ongoing discussion and encouraging Blue to share more.",
+            "appeal": "Red wants to be perceived as engaged and supportive, fostering a positive atmosphere in the conversation."
+        },
+        "11": {
+            "id": 11,
+            "sender": "Blue",
+            "message": "so how do we do this?",
+            "time": "2025-05-06T20:35:42.927796",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is seeking clarification on the process or rules regarding the current activity or game.",
+            "self_revelation": "The message is straightforward and consistent with Blue's previous communication style, indicating a desire to engage actively in the conversation.",
+            "relationship": "Blue is framing the relationship as collaborative, inviting both Yellow and Red to participate in the discussion about the game.",
+            "appeal": "Blue wants to be perceived as curious and eager to understand, encouraging both Yellow and Red to share their insights or instructions."
+        },
+        "12": {
+            "id": 12,
+            "sender": "Red",
+            "message": "asking questions",
+            "time": "2025-05-06T20:35:47.067271",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is making a statement about the act of asking questions, likely in response to Blue's inquiry.",
+            "self_revelation": "The message is brief and somewhat vague, which is typical for Red's communication style but does not provide much depth or personal insight.",
+            "relationship": "Red is attempting to maintain a friendly and engaging relationship by acknowledging Blue's question, though the response is minimal and does not invite further conversation.",
+            "appeal": "Red wants to be perceived as knowledgeable or helpful, reinforcing the idea of inquiry as a part of the conversation."
+        },
+        "13": {
+            "id": 13,
+            "sender": "Red",
+            "message": "basically",
+            "time": "2025-05-06T20:35:49.820928",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is making a brief statement that suggests a summarization or clarification of the previous discussion.",
+            "self_revelation": "The message is very concise and lacks detail, which may not provide much insight into Red's personality or engagement level in the conversation. This brevity could indicate a deviation from more elaborate previous messages, potentially making Red less engaging.",
+            "relationship": "Red is attempting to maintain a friendly tone but is not actively fostering a deeper connection with either Yellow or Blue through this message.",
+            "appeal": "Red wants to be perceived as straightforward and possibly knowledgeable, but the lack of elaboration may hinder the perception of engagement or interest."
+        },
+        "14": {
+            "id": 14,
+            "sender": "Yellow",
+            "message": "we can just chat and see how it goes",
+            "time": "2025-05-06T20:35:57.924343",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is suggesting a casual approach to the conversation, indicating a willingness to engage without a specific agenda.",
+            "self_revelation": "The message is casual and open, consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is framing the relationship as relaxed and informal, inviting both Blue and Red to participate freely in the conversation.",
+            "appeal": "Yellow wants to be perceived as easygoing and flexible, encouraging a laid-back atmosphere for interaction among the participants."
+        },
+        "15": {
+            "id": 15,
+            "sender": "Yellow",
+            "message": "maybe ask questions about each other",
+            "time": "2025-05-06T20:36:06.011197",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is suggesting that the participants ask questions about each other, promoting interaction.",
+            "self_revelation": "The message is casual and open, consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is framing the relationship as collaborative and engaging, encouraging both Blue and Red to participate actively in the conversation.",
+            "appeal": "Yellow wants to be perceived as friendly and encouraging, fostering a sense of connection and dialogue among the participants."
+        },
+        "16": {
+            "id": 16,
+            "sender": "Red",
+            "message": "ok so what do you do for a living?",
+            "time": "2025-05-06T20:36:16.501061",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is asking about the occupation of the other participants, indicating interest in their professional lives.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, showing no significant deviation from Red's previous communication style.",
+            "relationship": "Red is attempting to create a connection by inviting Yellow and Blue to share personal information, indicating a friendly and inclusive approach.",
+            "appeal": "Red wants to be perceived as curious and engaged, fostering a sense of camaraderie and encouraging dialogue about personal experiences."
+        },
+        "17": {
+            "id": 17,
+            "sender": "Blue",
+            "message": "I work in sales",
+            "time": "2025-05-06T20:36:22.622747",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is indicating their occupation, stating that they work in sales.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is framing the relationship as open and engaging, sharing personal information to foster connection with both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as honest and relatable, inviting further conversation about their work and encouraging Yellow and Red to share their own experiences."
+        },
+        "18": {
+            "id": 18,
+            "sender": "Blue",
+            "message": "professional salesman",
+            "time": "2025-05-06T20:36:28.220876",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is identifying their profession as a 'professional salesman', providing specific information about their job.",
+            "self_revelation": "The message is straightforward and consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is maintaining an open and engaging relationship, sharing specific personal information to foster connection with both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as professional and credible, inviting further discussion about their work and encouraging Yellow and Red to share their own experiences."
+        },
+        "19": {
+            "id": 19,
+            "sender": "Red",
+            "message": "oh nice, do you have any tips?",
+            "time": "2025-05-06T20:36:36.680723",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is responding positively to Blue's mention of their profession and is asking for advice or tips related to sales.",
+            "self_revelation": "The message is casual and friendly, consistent with Red's previous communication style, showing no deviation.",
+            "relationship": "Red is framing the relationship as supportive and engaging, showing interest in Blue's expertise and inviting further conversation.",
+            "appeal": "Red wants to be perceived as curious and engaged, encouraging Blue to share knowledge and fostering a collaborative atmosphere."
+        },
+        "20": {
+            "id": 20,
+            "sender": "Yellow",
+            "message": "oh cool sales is interesting i bet you have some good stories",
+            "time": "2025-05-06T20:36:41.660413",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is expressing interest in Blue's profession in sales and is indicating that they find it intriguing.",
+            "self_revelation": "The message is casual and friendly, consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is framing the relationship as supportive and engaging, showing genuine interest in Blue's experiences and encouraging further conversation.",
+            "appeal": "Yellow wants to be perceived as interested and friendly, fostering a sense of connection and encouraging Blue to share more about their experiences in sales."
+        },
+        "21": {
+            "id": 21,
+            "sender": "Yellow",
+            "message": "what's the craziest thing you've sold?",
+            "time": "2025-05-06T20:36:47.735838",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is asking Blue about their experiences in sales, specifically about unusual or interesting items they have sold.",
+            "self_revelation": "The message is casual and curious, consistent with Yellow's previous communication style, showing no deviation from prior messages.",
+            "relationship": "Yellow is framing the relationship as engaging and supportive, inviting Blue to share a personal story that could deepen their connection.",
+            "appeal": "Yellow wants to be perceived as interested and friendly, fostering a sense of connection and encouraging Blue to share more about their experiences."
+        },
+        "22": {
+            "id": 22,
+            "sender": "Blue",
+            "message": "I am in real estate and once a customer approached me wanting to by a house for 2 millions!",
+            "time": "2025-05-06T20:37:18.704416",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is indicating their profession in real estate and sharing a specific anecdote about a customer wanting to buy a house for 2 million.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is framing the relationship as open and engaging, sharing a personal story to foster connection with both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as knowledgeable and experienced in their field, inviting further conversation about their work and encouraging Yellow and Red to engage with the story."
+        },
+        "23": {
+            "id": 23,
+            "sender": "Red",
+            "message": "holy cow thats a lot haha",
+            "time": "2025-05-06T20:37:26.271707",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is expressing surprise at the high price mentioned by Blue regarding a real estate transaction.",
+            "self_revelation": "The message is casual and humorous, consistent with Red's previous communication style, showing no deviation.",
+            "relationship": "Red is maintaining a friendly and engaging relationship by reacting positively to Blue's story, indicating enthusiasm and camaraderie.",
+            "appeal": "Red wants to be perceived as light-hearted and relatable, fostering a fun and engaging atmosphere in the conversation."
+        },
+        "24": {
+            "id": 24,
+            "sender": "Yellow",
+            "message": "yeah that's wild",
+            "time": "2025-05-06T20:37:32.160640",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is expressing surprise or amazement at Blue's story about a high-value real estate transaction.",
+            "self_revelation": "The message is casual and aligns with Yellow's previous communication style, showing no deviation from prior messages, suggesting a consistent personality.",
+            "relationship": "Yellow is maintaining a friendly and engaging relationship with Blue, reinforcing the positive atmosphere of the conversation and showing support for Blue's experiences.",
+            "appeal": "Yellow wants to be perceived as relatable and engaged, fostering a sense of camaraderie and encouraging Blue to continue sharing their stories."
+        },
+        "25": {
+            "id": 25,
+            "sender": "Red",
+            "message": "did he buy it",
+            "time": "2025-05-06T20:37:33.590790",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is asking a follow-up question about the outcome of the real estate transaction mentioned by Blue.",
+            "self_revelation": "The message is casual and reflects Red's interest in the ongoing conversation, consistent with Red's previous communication style, showing no deviation.",
+            "relationship": "Red is maintaining a friendly and engaged relationship with both Yellow and Blue, indicating curiosity about Blue's story and inviting further discussion.",
+            "appeal": "Red wants to be perceived as interested and engaged, encouraging Blue to share more details about the real estate transaction."
+        },
+        "26": {
+            "id": 26,
+            "sender": "Yellow",
+            "message": "how do you even handle a sale like that",
+            "time": "2025-05-06T20:37:41.692549",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is asking Blue about the process of handling a high-value real estate sale, indicating curiosity about the complexities involved.",
+            "self_revelation": "The message is casual and inquisitive, consistent with Yellow's previous communication style, showing no deviation from prior messages.",
+            "relationship": "Yellow is framing the relationship as supportive and engaged, inviting Blue to share insights and experiences related to their profession, which could deepen their connection.",
+            "appeal": "Yellow wants to be perceived as interested and engaged, encouraging Blue to elaborate on their experiences and fostering a sense of camaraderie in the conversation."
+        },
+        "27": {
+            "id": 27,
+            "sender": "Blue",
+            "message": "no unfortunately not:/",
+            "time": "2025-05-06T20:37:49.124090",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is indicating that the customer did not buy the house for 2 million, expressing disappointment.",
+            "self_revelation": "The message is casual and straightforward, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is maintaining an open and engaging relationship, sharing the outcome of the real estate transaction to continue the conversation with both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as honest and relatable, inviting further discussion about the sale and encouraging Yellow and Red to engage with the story."
+        },
+        "28": {
+            "id": 28,
+            "sender": "Yellow",
+            "message": "like that's a huge deal",
+            "time": "2025-05-06T20:37:51.990865",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is expressing that the real estate transaction discussed is significant, emphasizing the high value of the sale.",
+            "self_revelation": "The message is casual and supportive, consistent with Yellow's previous communication style, showing no deviation from prior messages.",
+            "relationship": "Yellow is framing the relationship as engaged and supportive, reinforcing the importance of the conversation and encouraging Blue to feel validated in their experiences.",
+            "appeal": "Yellow wants to be perceived as understanding and interested, fostering a sense of camaraderie and encouraging Blue to continue sharing their thoughts and experiences."
+        },
+        "29": {
+            "id": 29,
+            "sender": "Blue",
+            "message": "you simply talk to them and see how it goes",
+            "time": "2025-05-06T20:38:03.520717",
+            "receivers": [
+                "Yellow",
+                "Red"
+            ],
+            "factual_information": "Blue is providing advice on handling sales, suggesting a conversational approach.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is maintaining an open and engaging relationship, sharing insights to foster connection with both Yellow and Red.",
+            "appeal": "Blue wants to be perceived as knowledgeable and approachable, inviting further discussion about sales strategies and encouraging Yellow and Red to share their thoughts."
+        },
+        "30": {
+            "id": 30,
+            "sender": "Red",
+            "message": "can you be more specific?",
+            "time": "2025-05-06T20:38:12.366612",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is asking Blue to provide more detailed information regarding their previous message about handling sales.",
+            "self_revelation": "The message is brief and direct, consistent with Red's communication style, but it lacks depth, which may indicate a desire for more engagement.",
+            "relationship": "Red is attempting to maintain a friendly and inquisitive relationship, encouraging Blue to elaborate on their insights and promoting further discussion.",
+            "appeal": "Red wants to be perceived as engaged and interested in the conversation, fostering a collaborative atmosphere where more information can be shared."
+        },
+        "31": {
+            "id": 31,
+            "sender": "Yellow",
+            "message": "like what do you mean by see how it goes?",
+            "time": "2025-05-06T20:38:25.019871",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is seeking clarification on Blue's previous statement about handling sales, specifically asking for more detail on what 'see how it goes' means.",
+            "self_revelation": "The message is casual and inquisitive, consistent with Yellow's previous communication style, showing a desire for deeper understanding and engagement in the conversation.",
+            "relationship": "Yellow is framing the relationship as collaborative and engaged, indicating interest in Blue's insights and encouraging further discussion.",
+            "appeal": "Yellow wants to be perceived as curious and involved, fostering a sense of connection and encouraging Blue to elaborate on their ideas."
+        },
+        "32": {
+            "id": 32,
+            "sender": "Blue",
+            "message": "ok lets switch topic how about you red?",
+            "time": "2025-05-06T20:38:46.720681",
+            "receivers": [
+                "Red"
+            ],
+            "factual_information": "Blue is suggesting a change of topic in the conversation and is directing the question towards Red.",
+            "self_revelation": "The message is casual and reflects a typical conversational flow, showing no deviation from Blue's previous communication style, indicating a willingness to engage with Red.",
+            "relationship": "Blue is attempting to maintain an inclusive and engaging relationship by inviting Red to share about themselves, indicating a desire for balanced participation in the conversation.",
+            "appeal": "Blue wants to be perceived as friendly and adaptable, encouraging Red to contribute to the discussion and fostering a collaborative atmosphere among the participants."
+        },
+        "33": {
+            "id": 33,
+            "sender": "Red",
+            "message": "well I work at a construction site",
+            "time": "2025-05-06T20:39:23.319938",
+            "receivers": [
+                "Blue",
+                "Yellow"
+            ],
+            "factual_information": "Red is indicating their occupation, stating that they work at a construction site.",
+            "self_revelation": "The message is straightforward and typical for casual conversation, showing no deviation from Red's previous communication style.",
+            "relationship": "Red is framing the relationship as open and engaging, sharing personal information to foster connection with both Yellow and Blue.",
+            "appeal": "Red wants to be perceived as relatable and honest, inviting further conversation about their work and encouraging Yellow and Blue to share their own experiences."
+        },
+        "34": {
+            "id": 34,
+            "sender": "Blue",
+            "message": "uh where are you from?",
+            "time": "2025-05-06T20:39:34.569928",
+            "receivers": [
+                "Red"
+            ],
+            "factual_information": "Blue is asking Red about their place of origin, indicating interest in personal background.",
+            "self_revelation": "The message is casual and typical for conversation, consistent with Blue's previous communication style, showing no deviation.",
+            "relationship": "Blue is attempting to maintain an open and engaging relationship by inviting Red to share personal information, indicating a desire for balanced participation in the conversation.",
+            "appeal": "Blue wants to be perceived as curious and friendly, encouraging Red to contribute to the discussion and fostering a collaborative atmosphere among the participants."
+        },
+        "35": {
+            "id": 35,
+            "sender": "Yellow",
+            "message": "i'm from upper austria",
+            "time": "2025-05-06T20:39:48.864463",
+            "receivers": [
+                "Blue",
+                "Red"
+            ],
+            "factual_information": "Yellow is providing information about their place of origin, stating they are from Upper Austria.",
+            "self_revelation": "The message is casual and straightforward, consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is maintaining an open and friendly relationship, sharing personal information to foster connection with both Blue and Red.",
+            "appeal": "Yellow wants to be perceived as relatable and engaged, encouraging further dialogue and connection with Blue and Red."
+        },
+        "36": {
+            "id": 36,
+            "sender": "Yellow",
+            "message": "what about you red?",
+            "time": "2025-05-06T20:39:55.602519",
+            "receivers": [
+                "Red"
+            ],
+            "factual_information": "Yellow is asking Red about their place of origin, indicating curiosity about Red's background.",
+            "self_revelation": "The message is casual and consistent with Yellow's previous communication style, showing no deviation.",
+            "relationship": "Yellow is framing the relationship as friendly and engaging, inviting Red to share personal information and encouraging interaction.",
+            "appeal": "Yellow wants to be perceived as interested and friendly, fostering a sense of connection and encouraging Red to share more about themselves."
+        }
+    }
+}
