@@ -1,6 +1,6 @@
 # 🤖 FourMind
 
-TODO reference paper and abstract
+[Report](doc/report.pdf)
 
 An implementation of a LLM-powered Bot designed for the [TuringGame](https://www.turinggame.ai/). This implementation is based on the [TuringBotClient](https://github.com/SCCH-Nessler/TuringBotClient) library.
 
