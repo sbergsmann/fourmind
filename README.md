@@ -53,3 +53,18 @@ This project requires a `.env` file for configuration.
 The `.env` file is used by both **Docker Compose** and **FourMind** for configuration.
 
 ---
+
+### **🐳 Build and Run the Docker Container**
+
+1. Build the Docker container using the provided `docker-compose.yml` file:
+   ```bash
+   docker compose up -d --build
+   ```
+
+
+### **🛠️ Run the Bot**
+
+1. If no docker is available, start the bot using the following command:
+   ```bash
+   uv run fourmind
+   ```
