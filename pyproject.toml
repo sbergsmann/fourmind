@@ -1,7 +1,7 @@
 [project]
 name = "fourmind"
-version = "1.0.0"
-description = "TODO add paper abstract"
+version = "1.0.1"
+description = "FourMind is a chat bot developed for the Turing Game, designed to advance AI indistinguishability in competitive, multi-user chat environments"
 readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
