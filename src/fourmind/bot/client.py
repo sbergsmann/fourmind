@@ -18,7 +18,6 @@ from fourmind.bot.common.logger_factory import LoggerFactory
 from fourmind.bot.models.chat import Chat, ChatMessage, GameID
 from fourmind.bot.models.storage import ChatStorage
 from fourmind.bot.services.analysis.four_sides import FourSidesQueue
-from fourmind.bot.services.llm_inference import LLMConfig
 from fourmind.bot.services.response_generation.lookahead import Lookahead
 from fourmind.bot.services.response_generation.message_time_simulator import MessageTimeSimulator
 from fourmind.bot.services.storage.storage_handler import StorageHandler
@@ -47,21 +46,8 @@ class FourMind(TuringBotClient):
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
-        self.queues: FourSidesQueue = FourSidesQueue(
-            storage=self.__storage,
-            client=self.oai_client,
-            llmconfig=LLMConfig(
-                base_model="gpt-4o-mini-2024-07-18",
-                temperature=0.45,
-            ),
-        )
-        self.response_generator: Lookahead = Lookahead(
-            client=self.oai_client,
-            llmconfig=LLMConfig(
-                base_model="gpt-4o-mini-2024-07-18",
-                temperature=0.70,
-            ),
-        )
+        self.queues: FourSidesQueue = FourSidesQueue(storage=self.__storage, client=self.oai_client)
+        self.response_generator: Lookahead = Lookahead(client=self.oai_client)
         self.mts = MessageTimeSimulator()
 
         # indicates whether a message generation is currently running
@@ -81,8 +67,8 @@ class FourMind(TuringBotClient):
         language: str,
     ) -> bool:
         """Override method to implement game start logic."""
-        chat: Chat = Chat(id=game_id, humans=players_list, bot=bot, language=language)
-        self.chats.add(chat)
+        chat: Chat = Chat(id=game_id, players=players_list, bot=bot, language=language)
+        await self.chats.add(chat)
         self.queues.add_queue(game_id)
         self.is_response_generation_running[game_id] = 0
 
@@ -93,7 +79,7 @@ class FourMind(TuringBotClient):
     async def async_on_message(self, game_id: int, message: str, player: str, bot: str) -> str | None:  # type: ignore
         incoming_message_start_time: DateTime = DateTime.now()
 
-        chat_ref: Chat | None = self.chats.get(game_id)
+        chat_ref: Chat | None = await self.chats.get(game_id)
         if chat_ref is None:
             self.logger.error(f"Chat with ID {self.anonymize_id(game_id)} not found in storage")
             return None
@@ -108,10 +94,9 @@ class FourMind(TuringBotClient):
         # Chat Message enqueuing logic
         chat_ref.add_message(chat_message)
         await self.queues.enqueue_item_async(game_id, chat_message.id)
-        self.logger.info(f"{str(chat_ref)} Added message to queue")
 
         if self.is_response_generation_running.get(game_id) == 1:
-            self.logger.info(f"Message generation already in progress for {self.anonymize_id(game_id)}")
+            self.logger.info(f"{str(chat_ref)} Message generation already in progress")
             return None
         self.is_response_generation_running[game_id] = 1
 
@@ -137,7 +122,7 @@ class FourMind(TuringBotClient):
     @override
     async def async_end_game(self, game_id: int) -> None:
         """Override method to implement game end logic"""
-        self.chats.remove(game_id)
+        await self.chats.remove(game_id)
         await self.queues.dequeue_and_cancel_async(game_id)
         self.is_response_generation_running.pop(game_id, None)
 
@@ -264,7 +249,7 @@ class FourMind(TuringBotClient):
 
     async def start_proactive_loop_async(self, game_id: int) -> None:
         """"""
-        chat: Chat | None = self.chats.get(game_id)
+        chat: Chat | None = await self.chats.get(game_id)
 
         while chat:
             # start chat proactively
@@ -298,7 +283,7 @@ class FourMind(TuringBotClient):
                 await asyncio.sleep(10)
 
             await asyncio.sleep(4)
-            chat: Chat | None = self.chats.get(game_id)
+            chat: Chat | None = await self.chats.get(game_id)
 
         self.logger.info(f"Proactive loop ended for {self.anonymize_id(game_id)}")
 
@@ -320,7 +305,13 @@ def main() -> None:
         logger.critical("OPENAI_API_KEY environment variable is not set")
         return None
 
-    bot: FourMind = FourMind(turinggame_api_key=turinggame_api_key, openai_api_key=openai_api_key)
+    persist_chats: bool = bool(os.environ.get("PERSIST_CHATS", "False"))
+
+    bot: FourMind = FourMind(
+        turinggame_api_key=turinggame_api_key,
+        openai_api_key=openai_api_key,
+        persist_chats=persist_chats,
+    )
     logger.info("FourMind bot created")
     bot.start()
 

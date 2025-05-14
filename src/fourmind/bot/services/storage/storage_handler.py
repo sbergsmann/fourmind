@@ -5,6 +5,7 @@ to a persistent storage.
 This class shall be the only interface to interact with the storage of chats in the bot.
 """
 
+import asyncio
 import os
 from logging import Logger
 
@@ -22,32 +23,39 @@ class StorageHandler:
         self.__storage: ChatStorage = storage
         self.persist: bool = persist
 
+        # avoid race conditions when accessing shared resources
+        self.lock = asyncio.Lock()
+
         if not os.path.exists(self.STORE_PATH):
             os.makedirs(self.STORE_PATH)
             self.logger.info(f"Store path created: {self.STORE_PATH}")
 
-    def get(self, id: int) -> Chat | None:
-        if id in self.__storage.active_games:
-            return self.__storage.chats.get(id)
-        return None
+    async def get(self, id: int) -> Chat | None:
+        async with self.lock:
+            if id in self.__storage.active_games:
+                return self.__storage.chats.get(id)
+            return None
 
-    def add(self, obj: Chat) -> None:
+    async def add(self, obj: Chat) -> None:
         if obj.id in self.__storage.active_games:
             self.logger.error(f"Chat with ID {obj.id} already exists in storage")
             raise ValueError(f"Chat with ID {obj.id} already exists in storage")
-        self.__storage.active_games.add(obj.id)
-        self.__storage.chats[obj.id] = obj
 
-    def remove(self, id: int) -> None:
+        async with self.lock:
+            self.__storage.active_games.add(obj.id)
+            self.__storage.chats[obj.id] = obj
+
+    async def remove(self, id: int) -> None:
         if id in self.__storage.active_games:
-            self.__storage.active_games.remove(id)
-            try:
-                chat = self.__storage.chats.pop(id)
-                if self.persist:
-                    self._persist(chat)
-                self.logger.debug(f"{str(chat)} removed from storage.")
-            except KeyError:
-                self.logger.error(f"Chat with ID {id} not found in storage")
+            async with self.lock:
+                self.__storage.active_games.remove(id)
+                try:
+                    chat = self.__storage.chats.pop(id)
+                    if self.persist:
+                        self._persist(chat)
+                    self.logger.debug(f"{str(chat)} removed from storage.")
+                except KeyError:
+                    self.logger.error(f"Chat with ID {id} not found in storage")
 
     def _persist(self, chat: Chat) -> None:
         """Store the chat in a .json file."""
