@@ -1,0 +1,55 @@
+name: "Auto bump version and tag main"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tag:
+    name: Bump version and tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0  # Needed to fetch tags
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Bump patch version
+        id: bump
+        run: |
+          uv version bump patch
+          NEW_VERSION=$(uv version)
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          git fetch --tags
+          TAG="v${{ steps.bump.outputs.NEW_VERSION }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $TAG does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+
+      - name: Commit updated version
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml uv.lock
+          git commit -m "Bump version to v${{ steps.bump.outputs.NEW_VERSION }}"
+          git push origin main
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.bump.outputs.NEW_VERSION }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
