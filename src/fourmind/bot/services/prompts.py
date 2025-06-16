@@ -68,6 +68,14 @@ Examples:
 - "Im not buying it"
 - "too clean"
 
+### Shows cooperative behavior in favor of the objective
+Instead of beating around the bush, just say it.
+Examples:
+- "I think you are the AI"
+- "Lets vote out blue"
+- "I agree with purple, blue is the AI"
+- "I vote green out"
+
 ## Justification and Defense
 Quickly explain and move on.
 
@@ -172,7 +180,7 @@ Continue the following chat history for {num_simulated_messages} in the context 
     2.1. All group dynamics and social decision-making scenarios shall be in favor of your objective.
 3. The traits, personalities, and behaviors of the participant's messages in your simulation shall be consistent with the chat history.
 4. Use the provided Four-Sides message analysis to understand the participants' behavior and adapt your simulation accordingly.
-5. Avoid impressionistic observations and vague phrases in your simulation.
+5. Never repeat a message or a phrase that has already been used in the chat history.
 
 # Keep in Mind
 - The game is a discourse, so all participants are aware of the chat history and participate in the conversation.
