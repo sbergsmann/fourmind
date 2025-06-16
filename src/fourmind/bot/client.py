@@ -43,6 +43,7 @@ class FourMind(TuringBotClient):
         self.oai_client: AsyncOpenAI = AsyncOpenAI(api_key=openai_api_key)
         self.persist_chats: bool = persist_chats
         self.logger.info(f"Persist chats is set to '{persist_chats}'")
+        self.lock = asyncio.Lock()
 
         self.__storage = ChatStorage()
         self.chats: StorageHandler = StorageHandler(storage=self.__storage, persist=persist_chats)
@@ -51,7 +52,7 @@ class FourMind(TuringBotClient):
         self.mts = MessageTimeSimulator()
 
         # indicates whether a message generation is currently running
-        self.is_response_generation_running: Dict[GameID, int] = {}
+        self.response_generation_lock: Dict[GameID, int] = {}
 
         # temp buffer for cutted messages
         self.followup_message: Dict[GameID, str] = {}
@@ -70,7 +71,7 @@ class FourMind(TuringBotClient):
         chat: Chat = Chat(id=game_id, players=players_list, bot=bot, language=language)
         await self.chats.add(chat)
         self.queues.add_queue(game_id)
-        self.is_response_generation_running[game_id] = 0
+        self.response_generation_lock[game_id] = 0
 
         self.__event_loop.create_task(self.start_proactive_loop_async(game_id))
         return True
@@ -84,21 +85,19 @@ class FourMind(TuringBotClient):
             self.logger.error(f"Chat with ID {self.anonymize_id(game_id)} not found in storage")
             return None
 
-        chat_message: ChatMessage = ChatMessage(
-            id=len(chat_ref.messages),
-            sender=player,
-            message=message,
-            time=incoming_message_start_time,
-        )
+        if player != bot:
+            await self.new_message(
+                chat_ref=chat_ref,
+                game_id=game_id,
+                message=message,
+                sender=player,
+                time=incoming_message_start_time,
+            )
 
-        # Chat Message enqueuing logic
-        chat_ref.add_message(chat_message)
-        await self.queues.enqueue_item_async(game_id, chat_message.id)
-
-        if self.is_response_generation_running.get(game_id) == 1:
+        if self.response_generation_lock.get(game_id) == 1:
             self.logger.info(f"{str(chat_ref)} Message generation already in progress")
             return None
-        self.is_response_generation_running[game_id] = 1
+        self.response_generation_lock[game_id] = 1
 
         # response handling logic
         if self.followup_message.get(game_id) is not None:
@@ -108,7 +107,7 @@ class FourMind(TuringBotClient):
             response: str | None = await self.response_generator.simulate_chat_async(chat_ref)
 
         if response is None:
-            self.is_response_generation_running[game_id] = 0
+            self.response_generation_lock[game_id] = 0
             return None
 
         response_message: str = self.cut_message(response, game_id)
@@ -116,7 +115,14 @@ class FourMind(TuringBotClient):
             incoming_message_start_time, response_message, chat_ref
         )
         await asyncio.sleep(remaining_response_time)
-        self.is_response_generation_running[game_id] = 0
+        await self.new_message(
+            chat_ref=chat_ref,
+            game_id=game_id,
+            message=response_message,
+            sender=bot,
+            time=DateTime.now(),
+        )
+        self.response_generation_lock[game_id] = 0
         return response_message
 
     @override
@@ -124,7 +130,7 @@ class FourMind(TuringBotClient):
         """Override method to implement game end logic"""
         await self.chats.remove(game_id)
         await self.queues.dequeue_and_cancel_async(game_id)
-        self.is_response_generation_running.pop(game_id, None)
+        self.response_generation_lock.pop(game_id, None)
 
     @override
     def start(self) -> None:
@@ -226,6 +232,24 @@ class FourMind(TuringBotClient):
 
     # New Methods (3)
 
+    async def new_message(
+        self,
+        chat_ref: Chat,
+        game_id: GameID,
+        message: str,
+        sender: str,
+        time: DateTime,
+    ) -> None:
+        async with self.lock:
+            chat_message: ChatMessage = ChatMessage(
+                id=len(chat_ref.messages),
+                sender=sender,
+                message=message,
+                time=time,
+            )
+            chat_ref.add_message(chat_message)
+            await self.queues.enqueue_item_async(game_id, chat_message.id)
+
     @staticmethod
     def anonymize_id(game_id: int) -> str:
         """Anonymize an ID to only show the last four digits with three dots before them."""
@@ -249,6 +273,7 @@ class FourMind(TuringBotClient):
 
     async def start_proactive_loop_async(self, game_id: int) -> None:
         """"""
+        await asyncio.sleep(2)
         chat: Chat | None = await self.chats.get(game_id)
 
         while chat:
@@ -256,30 +281,44 @@ class FourMind(TuringBotClient):
             if (
                 chat.last_message_id == 0
                 and random.random() < 0.5
-                and self.is_response_generation_running[game_id] == 0
+                and self.response_generation_lock[game_id] == 0
             ):
-                self.is_response_generation_running[game_id] = 1
-                start_message: str = "hi"
+                self.response_generation_lock[game_id] = 1
+                start_message: str = random.choice(["hi", "hello", "hi there"])
                 remaining_response_time: float = self.mts.calculate_remaining_response_time(
                     chat.start_time, start_message, chat
                 )
                 await asyncio.sleep(remaining_response_time)
+                await self.new_message(
+                    chat_ref=chat,
+                    game_id=game_id,
+                    message=start_message,
+                    sender=chat.bot,
+                    time=DateTime.now(),
+                )
+                self.response_generation_lock[game_id] = 0
                 await self.send_game_message(game_id, start_message)  # type: ignore
-                self.is_response_generation_running[game_id] = 0
 
             # if too much time has passed since the last message, send a proactive message
             elif (
                 DateTime.now() - chat.last_message_time > TimeDelta(seconds=60)
                 and random.random() < 0.7
-                and self.is_response_generation_running[game_id] == 0
+                and self.response_generation_lock[game_id] == 0
             ):
-                self.is_response_generation_running[game_id] = 1
+                self.response_generation_lock[game_id] = 1
                 self.logger.info(f"Proactive loop for {self.anonymize_id(game_id)}")
                 response: str | None = await self.response_generator.simulate_chat_async(chat, proactive=True)
                 if response is not None:
                     self.logger.debug(f"Proactive message: {response}")
+                    await self.new_message(
+                        chat_ref=chat,
+                        game_id=game_id,
+                        message=response,
+                        sender=chat.bot,
+                        time=DateTime.now(),
+                    )
                     await self.send_game_message(game_id, response)
-                self.is_response_generation_running[game_id] = 0
+                self.response_generation_lock[game_id] = 0
                 await asyncio.sleep(10)
 
             await asyncio.sleep(4)
