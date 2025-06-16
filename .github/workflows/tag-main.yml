@@ -26,11 +26,10 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-
       - name: Calculate new version
         id: bump
         run: |
-          current=$(uv version)
+          current=$(uv version | awk '{ print $2 }')  # only version number
           echo "Current version: $current"
 
           IFS='.' read -r major minor patch <<< "$current"
