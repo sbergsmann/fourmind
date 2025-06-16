@@ -1,12 +1,12 @@
 """Submodule implementing the base inference method for calling LLMs using the OpenAI format."""
 
-from dataclasses import dataclass
+import random
 from logging import Logger
 from typing import Type, TypeVar
 
 from openai import AsyncOpenAI
 from openai.types.chat import ParsedChatCompletion, ParsedChatCompletionMessage
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fourmind.bot.common.logger_factory import LoggerFactory
 
@@ -18,10 +18,11 @@ __all__ = [
 TBaseModel = TypeVar("TBaseModel", bound=BaseModel)
 
 
-@dataclass
-class LLMConfig:
-    base_model: str
-    temperature: float
+class LLMConfig(BaseModel):
+    """Configuration class for LLM inference."""
+
+    base_model: str = Field(default="gpt-4o-mini-2024-07-18")
+    temperature: float = Field(default_factory=lambda _: random.uniform(0.4, 0.9))
 
 
 class LLMInference:
