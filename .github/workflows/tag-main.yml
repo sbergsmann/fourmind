@@ -56,6 +56,7 @@ jobs:
           else
             echo "Tag $tag does not exist."
             echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set version with uv
         if: steps.check_tag.outputs.exists == 'false'
