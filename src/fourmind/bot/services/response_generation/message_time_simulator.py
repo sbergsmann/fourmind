@@ -51,7 +51,7 @@ class MessageTimeSimulator:
 
         crt: float = 0.15 * c_e + 0.36 * c_p + 0.0004 * c_e * c_p  # + 9.2
 
-        return crt / 4.0
+        return crt / 2.0
 
     def calculate_remaining_response_time(self, start_time: DateTime, message: str, chat_ref: Chat) -> float:
         """Simulate the total response time for reading and writing a message."""

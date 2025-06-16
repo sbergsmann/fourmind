@@ -11,7 +11,7 @@ from fourmind.bot.models.chat import Chat, GameID, Message, RichChatMessage
 from fourmind.bot.models.inference import FourSidesAnalysis
 from fourmind.bot.models.storage import ChatStorage
 from fourmind.bot.services import prompts
-from fourmind.bot.services.llm_inference import LLMConfig, LLMInference
+from fourmind.bot.services.llm_inference import LLMInference
 
 __all__ = [
     "FourSidesQueue",
@@ -21,9 +21,8 @@ __all__ = [
 class FourSidesQueue(LLMInference):
     logger: Logger = LoggerFactory.setup_logger(__name__)
 
-    def __init__(self, storage: ChatStorage, client: AsyncOpenAI, llmconfig: LLMConfig) -> None:
+    def __init__(self, storage: ChatStorage, client: AsyncOpenAI) -> None:
         self.__storage: ChatStorage = storage
-        self.llmconfig: LLMConfig = llmconfig
         self.client: AsyncOpenAI = client
 
         self.queues: Dict[GameID, asyncio.Queue[int]] = dict()
@@ -77,14 +76,14 @@ class FourSidesQueue(LLMInference):
 
             analysis: FourSidesAnalysis | None = await self.ainfer(
                 client=self.client,
-                config=self.llmconfig,
+                config=chat_ref.llmconfig,
                 system_prompt=prompts.FourSidesAnalysisPrompts.system.format(
                     ai_user=chat_ref.bot,
                     game_description=prompts,
                 ),
                 instruction_prompt=prompts.FourSidesAnalysisPrompts.instruction.format(
                     participants=", ".join(chat_ref.participants),
-                    chat_history=chat_ref.get_formatted_chat_history(stop_id=message.id),
+                    chat_history=chat_ref.get_formatted_chat_history(last_n=message.id),
                     message=str(message),
                 ),
                 response_model=FourSidesAnalysis,

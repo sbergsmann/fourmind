@@ -9,32 +9,33 @@ from fourmind.bot.common.logger_factory import LoggerFactory
 from fourmind.bot.models.chat import Chat
 from fourmind.bot.models.inference import ChatSimulationReponse
 from fourmind.bot.services import prompts
-from fourmind.bot.services.llm_inference import LLMConfig, LLMInference
+from fourmind.bot.services.llm_inference import LLMInference
 
 __all__ = ["Lookahead"]
 
 
 @dataclass
 class SimulationConfig:
-    num_simulated_messages: int = 7
+    num_simulated_messages: int = 5
 
 
 class Lookahead(LLMInference):
     logger: Logger = LoggerFactory.setup_logger(__name__)
 
-    def __init__(self, client: AsyncOpenAI, llmconfig: LLMConfig) -> None:
-        self.llmconfig: LLMConfig = llmconfig
+    def __init__(self, client: AsyncOpenAI) -> None:
         self.client: AsyncOpenAI = client
 
     async def simulate_chat_async(self, chat_ref: Chat, proactive: bool = False) -> str | None:
+        self.logger.info(f"Simulating chat for {str(chat_ref)}")
+        self.logger.info(f"Chat history: {chat_ref.get_formatted_chat_history(5, simple=True)}")
         response: ChatSimulationReponse | None = await self.ainfer(
             client=self.client,
-            config=self.llmconfig,
+            config=chat_ref.llmconfig,
             system_prompt=prompts.ResponseGenerationPrompts.system.format(
                 game_description=prompts.GeneralPrompts.game,
                 behavior=prompts.GeneralPrompts.behavior,
-                target_user=chat_ref.human_participants[0],
-                blamed_user=chat_ref.human_participants[1],
+                target_user=chat_ref.humans[0],
+                blamed_user=chat_ref.humans[1],
                 ai_user=chat_ref.bot,
             ),
             instruction_prompt=prompts.ResponseGenerationPrompts.instruction.format(
@@ -52,7 +53,7 @@ class Lookahead(LLMInference):
         if response is None:
             return None
 
-        self.logger.debug(f"{response.messages[0].sender}: {response.messages[0].message}")
+        self.logger.debug(f"{str(chat_ref)} {response.messages[0].sender}: {response.messages[0].message}")
         if response.messages[0].sender == chat_ref.bot:
             return response.messages[0].message
         return None
