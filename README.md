@@ -1,4 +1,7 @@
-# 🤖 FourMind
+<h1>
+  <img src="./doc/fourmind-logo.png" alt="Logo" width="40"> 
+  FourMind
+</h1>
 
 [Report](doc/report.pdf)
 
