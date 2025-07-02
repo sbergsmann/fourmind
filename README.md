@@ -1,5 +1,5 @@
 <h1>
-  <img src="./doc/fourmind-logo.png" alt="Logo" width="40"> 
+  <img src="./doc/fourmind-logo.png" alt="Logo" width="30"> 
   FourMind
 </h1>
 
