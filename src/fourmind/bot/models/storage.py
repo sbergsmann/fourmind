@@ -6,7 +6,7 @@ from fourmind.bot.models.chat import Chat, GameID
 
 
 class ChatStorage(BaseModel):
-    active_games: Set[GameID] = Field(
+    active_games: Set[GameID] = Field(  # pyright: ignore[reportUnknownVariableType]
         alias="activeGames", description="Set of active game IDs", default_factory=set
     )
-    chats: Dict[GameID, Chat] = Field(description="Dictionary of chats", default_factory=dict)
+    chats: Dict[GameID, Chat] = Field(description="Dictionary of chats", default_factory=dict)  # pyright: ignore[reportUnknownVariableType]
