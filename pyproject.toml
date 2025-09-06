@@ -6,12 +6,9 @@ readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
     "openai>=1.76.2",
-    "turing-bot-client",
+    "turing-bot-client>=0.0.4.post3",
     "websockets>=15.0.1",
 ]
-
-[tool.uv.sources]
-turing-bot-client = { git = "https://github.com/SCCH-Nessler/TuringBotClient.git" }
 
 [dependency-groups]
 dev = [
