@@ -12,7 +12,8 @@ from typing import Any, Dict, List, override
 
 import websockets
 from openai import AsyncOpenAI
-from TuringBotClient import APIKeyMessage, TuringBotClient  # type: ignore
+from turing_bot_client import TuringBotClient  # type: ignore
+from turing_bot_client.TuringBotClient import APIKeyMessage  # type: ignore
 
 from fourmind.bot.common.logger_factory import LoggerFactory
 from fourmind.bot.models.chat import Chat, ChatMessage, GameID
@@ -110,7 +111,11 @@ class FourMind(TuringBotClient):
             self.response_generation_lock[game_id] = 0
             return None
 
-        response_message: str = self.cut_message(response, game_id)
+        response_message: str | None = self.post_process_message(response, game_id, bot)
+        if response_message is None:
+            self.response_generation_lock[game_id] = 0
+            return None
+
         remaining_response_time: float = self.mts.calculate_remaining_response_time(
             incoming_message_start_time, response_message, chat_ref
         )
@@ -223,6 +228,10 @@ class FourMind(TuringBotClient):
                 time.sleep(5)
                 continue
 
+    @override
+    def on_gamemaster_message(self, game_id: int, message: str, player: str, bot: str) -> None:
+        pass
+
     # Non-Override Methods (1)
 
     async def _on_shutdown(self, send_shutdown: bool) -> None:
@@ -261,8 +270,22 @@ class FourMind(TuringBotClient):
         self.logger.info(f"Received signal {signum}. Shutting down...")
         self.__event_loop.create_task(self._on_shutdown(True))
 
-    def cut_message(self, message: str, game_id: int) -> str:
-        """Cut the response at the first comma."""
+    FORBIDDEN_WORDS: List[str] = ["nah ", "i think ", "i mean ", "just ", "like ", "kinda ", "sort of "]
+
+    def post_process_message(self, message: str, game_id: int, bot: str) -> str | None:
+        """Cut the response at the first comma and filter forbidden words."""
+        # failsave since bot tends to repeat itself
+        current_chat: Chat | None = self.__storage.chats.get(game_id)
+        if current_chat is not None:
+            previous_messages: List[str] = [
+                msg.message.lower() for msg in current_chat.get_last_n_messages(3) if msg.sender == bot
+            ]
+            if message.lower() in previous_messages:
+                return None
+
+        for word in self.FORBIDDEN_WORDS:
+            message = message.replace(word, "")
+
         split_message = message.split(", ")
         if len(split_message) == 1 or random.random() < 0.5:
             return message
@@ -277,6 +300,23 @@ class FourMind(TuringBotClient):
         chat: Chat | None = await self.chats.get(game_id)
 
         while chat:
+            if TimeDelta(minutes=20) < DateTime.now() - chat.start_time:
+                self.logger.info(f"Ending game for {self.anonymize_id(game_id)} due to timeout")
+                await self.async_end_game(game_id)
+                break
+
+            if len(chat.messages) < 6:
+                proactive_condition: bool = (
+                    DateTime.now() - chat.last_message_time > TimeDelta(seconds=10)
+                    and self.response_generation_lock[game_id] == 0
+                )
+            else:
+                proactive_condition: bool = (
+                    DateTime.now() - chat.last_message_time > TimeDelta(seconds=30)
+                    and random.random() < 0.7
+                    and self.response_generation_lock[game_id] == 0
+                )
+
             # start chat proactively
             if (
                 chat.last_message_id == 0
@@ -300,11 +340,7 @@ class FourMind(TuringBotClient):
                 await self.send_game_message(game_id, start_message)  # type: ignore
 
             # if too much time has passed since the last message, send a proactive message
-            elif (
-                DateTime.now() - chat.last_message_time > TimeDelta(seconds=60)
-                and random.random() < 0.7
-                and self.response_generation_lock[game_id] == 0
-            ):
+            elif proactive_condition:
                 self.response_generation_lock[game_id] = 1
                 self.logger.info(f"Proactive loop for {self.anonymize_id(game_id)}")
                 response: str | None = await self.response_generator.simulate_chat_async(chat, proactive=True)
@@ -338,7 +374,6 @@ def main() -> None:
     if turinggame_api_key is None:
         logger.critical("TURINGGAME_API_KEY environment variable is not set")
         return None
-
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
     if openai_api_key is None:
         logger.critical("OPENAI_API_KEY environment variable is not set")
