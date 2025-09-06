@@ -27,7 +27,7 @@ class Lookahead(LLMInference):
 
     async def simulate_chat_async(self, chat_ref: Chat, proactive: bool = False) -> str | None:
         self.logger.info(f"Simulating chat for {str(chat_ref)}")
-        self.logger.info(f"Chat history: {chat_ref.get_formatted_chat_history(5, simple=True)}")
+        # self.logger.info(f"Chat history: {chat_ref.get_formatted_chat_history(5, simple=True)}")
         response: ChatSimulationReponse | None = await self.ainfer(
             client=self.client,
             config=chat_ref.llmconfig,
